@@ -4,6 +4,7 @@ from typing import Optional
 
 import anthropic
 import google.generativeai as genai
+import google.api_core
 import openai
 import ollama
 import requests
