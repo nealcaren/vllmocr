@@ -41,10 +41,30 @@ class AppConfig:
         if provider == "ollama":
             return self.ollama_model
         else:
-            # Add defaults for other providers as needed.
+            # Return empty string for other providers
             return ""
 
 
 def load_config() -> AppConfig:
     """Loads the application configuration."""
     return AppConfig()
+
+def get_api_key(config: AppConfig, provider: str) -> Optional[str]:
+    """Retrieves the API key for a given provider (functional version)."""
+    if provider == "openai":
+        return config.openai_api_key
+    elif provider == "anthropic":
+        return config.anthropic_api_key
+    elif provider == "google":
+        return config.google_api_key
+    elif provider == "ollama":
+        return None
+    else:
+        return None
+
+def get_default_model(config: AppConfig, provider: str) -> str:
+    """Retrieves the default model for a given provider (functional version)."""
+    if provider == "ollama":
+        return config.ollama_model
+    else:
+        return ""
