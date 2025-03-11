@@ -2,7 +2,7 @@ import os
 import pytest
 from ocrv.main import process_single_image, process_pdf
 from ocrv.config import AppConfig, load_config
-from unittest.mock import patch
+from unittest.mock import patch, ANY
 
 # Get the absolute path to the project root directory
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -37,13 +37,13 @@ def test_process_single_image(config, test_data_dir, provider, model):
             result = process_single_image(image_path, provider, config)
         assert result == f"Mocked {provider} transcription"
         if provider == "ollama":
-            mock_transcribe.assert_called_once_with(mock.ANY, model=model)
+            mock_transcribe.assert_called_once_with(ANY, model=model)
         elif provider == "openai":
-            mock_transcribe.assert_called_once_with(mock.ANY, mock.ANY, model=model)
+            mock_transcribe.assert_called_once_with(ANY, ANY, model=model)
         elif provider == "anthropic":
-            mock_transcribe.assert_called_once_with(mock.ANY, mock.ANY, model=model)
+            mock_transcribe.assert_called_once_with(ANY, ANY, model=model)
         elif provider == "google":
-            mock_transcribe.assert_called_once_with(mock.ANY, mock.ANY, model=model)
+            mock_transcribe.assert_called_once_with(ANY, ANY, model=model)
 
 @pytest.mark.parametrize("provider, model", [
     ("openai", "gpt-4o"),
@@ -58,15 +58,15 @@ def test_process_pdf(config, test_data_dir, provider, model):
         mock_transcribe.return_value = f"Mocked {provider} transcription"
         if provider == "ollama":
             result = process_pdf(pdf_path, provider, config, model=model)
-            mock_transcribe.assert_called_once_with(mock.ANY, model=model)
+            mock_transcribe.assert_called_once_with(ANY, model=model)
         else:
             result = process_pdf(pdf_path, provider, config)
             if provider == "openai":
-                mock_transcribe.assert_called_once_with(mock.ANY, mock.ANY, model=model)
+                mock_transcribe.assert_called_once_with(ANY, ANY, model=model)
             elif provider == "anthropic":
-                mock_transcribe.assert_called_once_with(mock.ANY, mock.ANY, model=model)
+                mock_transcribe.assert_called_once_with(ANY, ANY, model=model)
             elif provider == "google":
-                mock_transcribe.assert_called_once_with(mock.ANY, mock.ANY, model=model)
+                mock_transcribe.assert_called_once_with(ANY, ANY, model=model)
 
         assert result == f"Mocked {provider} transcription" # Single page
         assert mock_transcribe.call_count == 1
