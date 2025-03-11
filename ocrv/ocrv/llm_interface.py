@@ -1,12 +1,12 @@
 from .config import AppConfig
 
-def generate_text(image, llm_provider: str, config: AppConfig):
+def transcribe_image(image_path: str, llm_provider: str, config: AppConfig) -> str:
     """
     Generates text from a processed image using an LLM.
 
     Args:
-        image: The processed image.
-        llm_provider:  'openai' or 'local'.
+        image_path: Path to the processed image.
+        llm_provider:  'openai', 'anthropic', 'google', or 'ollama'.
         config: Application configuration.
 
     Returns:
@@ -15,19 +15,18 @@ def generate_text(image, llm_provider: str, config: AppConfig):
     print(f"Generating text from image with LLM provider: {llm_provider} and config: {config}")
     if llm_provider == "openai":
         # Use OpenAI API (requires API key)
-        # Example:
-        # import openai
-        # openai.api_key = config.openai_api_key
-        # response = openai.Completion.create(
-        #     engine="text-davinci-003",  # Or another suitable engine
-        #     prompt=f"Extract text from this image: {image}", #  May need a better prompt
-        #     max_tokens=100,
-        # )
-        # return response.choices[0].text.strip()
-        return "OpenAI LLM text generation placeholder"
+        return "OpenAI LLM text generation placeholder"  # Replace with actual OpenAI API call
 
-    elif llm_provider == "local":
-        # Use a local LLM (e.g., a Hugging Face Transformers model)
-        return "Local LLM text generation placeholder"
+    elif llm_provider == "anthropic":
+        # Use Anthropic API (requires API key)
+        return "Anthropic LLM text generation placeholder" # Replace with actual Anthropic API call
+
+    elif llm_provider == "google":
+        # Use Google Gemini API (requires API key)
+        return "Google LLM text generation placeholder"  # Replace with actual Google API call
+
+    elif llm_provider == "ollama":
+        # Use Ollama for local LLM inference
+        return "Ollama local LLM text generation placeholder" # Replace with actual Ollama API call
     else:
         raise ValueError(f"Invalid LLM provider: {llm_provider}")

@@ -1,53 +1,77 @@
-from .image_processing import process_image
-from .llm_interface import generate_text
-from .config import load_config
-from .utils import some_utility_function  # Example utility function
+import argparse
+import os
+import sys
+import tempfile
+from typing import List
+
+from .image_processing import preprocess_image, pdf_to_images, sanitize_filename
+from .llm_interface import transcribe_image
+from .config import load_config, AppConfig
 
 
-def transcribe_image(image_path, llm_provider):
-    """
-    Transcribes text from an image using OCR and an LLM.
+def process_single_image(image_path: str, provider: str, config: AppConfig) -> str:
+    """Processes a single image and returns the transcribed text."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        preprocessed_path = preprocess_image(
+            image_path,
+            os.path.join(temp_dir, "preprocessed.png"),
+            config.image_processing_settings["rotation"],
+            config.debug
+        )
+        return transcribe_image(preprocessed_path, provider, config)
 
-    Args:
-        image_path (str): Path to the image file.
-        llm_provider (str): The LLM provider to use (e.g., "openai", "local").
+def process_pdf(pdf_path: str, provider: str, config: AppConfig) -> str:
+    """Processes a PDF and returns the transcribed text."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        image_paths = pdf_to_images(pdf_path, temp_dir, config.dpi)
+        all_text = []
+        for image_path in image_paths:
+            text = process_single_image(image_path, provider, config)
+            all_text.append(text)
+        return "\n\n".join(all_text)
 
-    Returns:
-        str: The transcribed text.
-    """
+def main():
+    """Main function to handle command-line arguments and processing."""
+    parser = argparse.ArgumentParser(description="OCR processing for PDFs and images.")
+    parser.add_argument("-i", "--input", type=str, required=True, help="Input file (PDF or image).")
+    parser.add_argument("-o", "--output", type=str, help="Output file name (default: auto-generated).")
+    parser.add_argument("-p", "--provider", type=str, required=True,
+                        help="LLM provider ('openai', 'anthropic', 'google', 'ollama').")
+    parser.add_argument("--dpi", type=int, default=300, help="DPI for PDF rendering (default: 300).")
+    parser.add_argument("--rotate", type=int, choices=[0, 90, 180, 270], default=0,
+                        help="Manually rotate image by specified degrees (0, 90, 180, or 270)")
+    parser.add_argument("--debug", action="store_true", help="Save intermediate processing steps for debugging")
+    args = parser.parse_args()
+
     config = load_config()
-    image = process_image(image_path, config)
-    text = generate_text(image, llm_provider, config)
-    return text
+
+    # Override config with command-line arguments
+    config.dpi = args.dpi
+    config.image_processing_settings["rotation"] = args.rotate
+    config.debug = args.debug
 
 
-def transcribe_pdf(pdf_path, llm_provider):
-    """
-    Transcribes text from a PDF file using OCR and an LLM.
-    Extracts images from the PDF first, then processes each image.
+    input_file = args.input
+    if not os.path.exists(input_file):
+        print(f"Error: File '{input_file}' not found.", file=sys.stderr)
+        sys.exit(1)
 
-    Args:
-        pdf_path (str): Path to the PDF file.
-        llm_provider (str): The LLM provider to use.
+    file_extension = os.path.splitext(input_file)[1].lower()
+    if file_extension == ".pdf":
+        extracted_text = process_pdf(input_file, args.provider, config)
+    elif file_extension.lower() in (".png", ".jpg", ".jpeg"):  # Check image extensions
+        extracted_text = process_single_image(input_file, args.provider, config)
+    else:
+        print(f"Error: Unsupported file type: {file_extension}", file=sys.stderr)
+        sys.exit(1)
 
-    Returns:
-        str: The transcribed text.
-    """
-    config = load_config()
-    #  Implementation for PDF processing (using PyMuPDF or similar)
-    #  1. Extract images from PDF.
-    #  2. Loop through images:
-    #  3.   image = process_image(image_path, config)
-    #  4.   text_part = generate_text(image, llm_provider, config)
-    #  5.   Append text_part to overall result.
-    #  For now, a placeholder:
-    return "PDF transcription not yet implemented."
+    output_filename = args.output
+    if not output_filename:
+        output_filename = f"{os.path.splitext(input_file)[0]}_{sanitize_filename(args.provider)}.md"
+    with open(output_filename, 'w') as f:
+        f.write(extracted_text)
 
+    print(f"OCR result saved to: {output_filename}")
 
-# Example usage (you'd likely call this from a separate script)
 if __name__ == "__main__":
-    # image_text = transcribe_image("path/to/image.jpg", "openai")
-    # print(f"Transcribed text: {image_text}")
-
-    pdf_text = transcribe_pdf("path/to/document.pdf", "local")
-    print(f"Transcribed PDF text: {pdf_text}")
+    main()
