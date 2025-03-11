@@ -1,56 +1,91 @@
-import unittest
-from unittest.mock import patch
 import os
+import pytest
 from ocrv.main import process_single_image, process_pdf
-from ocrv.config import AppConfig
+from ocrv.config import AppConfig, load_config
+from unittest.mock import patch
 
-# Create a mock AppConfig for testing
-@patch.dict(os.environ, {"DPI": "300", "IMAGE_ROTATION": "0"})
-def create_test_config():
-    return AppConfig()
+# Get the absolute path to the project root directory
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-class TestOCR(unittest.TestCase):
-    def setUp(self):
-        self.config = create_test_config()
-        self.test_image_path = "tests/data/sample.png"
-        self.test_pdf_path = "tests/data/sample.pdf"
+@pytest.fixture
+def config():
+    config = load_config()
+    # Set dummy API keys to avoid actual API calls during testing
+    config.openai_api_key = "dummy_openai_key"
+    config.anthropic_api_key = "dummy_anthropic_key"
+    config.google_api_key = "dummy_google_key"
+    return config
 
-    @patch('ocrv.llm_interface._transcribe_with_openai')
-    def test_process_single_image_openai(self, mock_transcribe):
+@pytest.fixture
+def test_data_dir():
+    return os.path.join(PROJECT_ROOT, "tests", "data")
+
+@pytest.mark.parametrize("provider, model", [
+    ("openai", "gpt-4o"),
+    ("anthropic", "claude-3-opus-20240229"),
+    ("google", "gemini-1.5-pro-002"),
+    ("ollama", "llama3.2-vision"),
+    ("ollama", "minicpm-v"),
+])
+def test_process_single_image(config, test_data_dir, provider, model):
+    image_path = os.path.join(test_data_dir, "sample.png")
+    with patch(f'ocrv.llm_interface._transcribe_with_{provider}') as mock_transcribe:
+        mock_transcribe.return_value = f"Mocked {provider} transcription"
+        if provider == "ollama":
+            result = process_single_image(image_path, provider, config, model=model)
+        else:
+            result = process_single_image(image_path, provider, config)
+        assert result == f"Mocked {provider} transcription"
+        if provider == "ollama":
+            mock_transcribe.assert_called_once_with(unittest.mock.ANY, model=model)
+        elif provider == "openai":
+            mock_transcribe.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, model=model)
+        elif provider == "anthropic":
+            mock_transcribe.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, model=model)
+        elif provider == "google":
+            mock_transcribe.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, model=model)
+
+@pytest.mark.parametrize("provider, model", [
+    ("openai", "gpt-4o"),
+    ("anthropic", "claude-3-opus-20240229"),
+    ("google", "gemini-1.5-pro-002"),
+    ("ollama", "llama3.2-vision"),
+    ("ollama", "minicpm-v"),
+])
+def test_process_pdf(config, test_data_dir, provider, model):
+    pdf_path = os.path.join(test_data_dir, "sample.pdf")
+    with patch(f'ocrv.llm_interface._transcribe_with_{provider}') as mock_transcribe:
+        mock_transcribe.return_value = f"Mocked {provider} transcription"
+        if provider == "ollama":
+            result = process_pdf(pdf_path, provider, config, model=model)
+            mock_transcribe.assert_called_once_with(unittest.mock.ANY, model=model)
+        else:
+            result = process_pdf(pdf_path, provider, config)
+            if provider == "openai":
+                mock_transcribe.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, model=model)
+            elif provider == "anthropic":
+                mock_transcribe.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, model=model)
+            elif provider == "google":
+                mock_transcribe.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, model=model)
+
+        assert result == f"Mocked {provider} transcription" # Single page
+        assert mock_transcribe.call_count == 1
+
+# Add more tests for different file types, edge cases, and image processing settings
+
+def test_process_single_image_invalid_file(config, test_data_dir):
+    image_path = os.path.join(test_data_dir, "nonexistent.png")
+    with pytest.raises(SystemExit):  # Expect SystemExit due to handle_error
+        process_single_image(image_path, "openai", config)
+
+# Example of testing rotation
+def test_process_single_image_rotation(config, test_data_dir):
+    image_path = os.path.join(test_data_dir, "sample.png")
+    with patch('ocrv.llm_interface._transcribe_with_openai') as mock_transcribe:
         mock_transcribe.return_value = "Mocked OpenAI transcription"
-        text = process_single_image(self.test_image_path, "openai", self.config)
-        self.assertEqual(text, "Mocked OpenAI transcription")
-        mock_transcribe.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, model='gpt-4o')
-
-    @patch('ocrv.llm_interface._transcribe_with_anthropic')
-    def test_process_single_image_anthropic(self, mock_transcribe):
-        mock_transcribe.return_value = "Mocked Anthropic transcription"
-        text = process_single_image(self.test_image_path, "anthropic", self.config)
-        self.assertEqual(text, "Mocked Anthropic transcription")
-        mock_transcribe.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, model='claude-3-opus-20240229')
-
-    @patch('ocrv.llm_interface._transcribe_with_google')
-    def test_process_single_image_google(self, mock_transcribe):
-        mock_transcribe.return_value = "Mocked Google transcription"
-        text = process_single_image(self.test_image_path, "google", self.config)
-        self.assertEqual(text, "Mocked Google transcription")
-        mock_transcribe.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, model='gemini-1.5-pro-002')
-
-    @patch('ocrv.llm_interface._transcribe_with_ollama')
-    def test_process_single_image_ollama(self, mock_transcribe):
-        mock_transcribe.return_value = "Mocked Ollama transcription"
-        text = process_single_image(self.test_image_path, "ollama", self.config, model="llama3.2-vision")
-        self.assertEqual(text, "Mocked Ollama transcription")
-        mock_transcribe.assert_called_once_with(unittest.mock.ANY, model='llama3.2-vision')
-
-    @patch('ocrv.llm_interface._transcribe_with_openai')
-    def test_process_pdf_openai(self, mock_transcribe):
-        mock_transcribe.return_value = "Mocked OpenAI transcription"
-        text = process_pdf(self.test_pdf_path, "openai", self.config)
-        self.assertEqual(text, "Mocked OpenAI transcription\n\nMocked OpenAI transcription")  # Assuming 2 pages
-        self.assertEqual(mock_transcribe.call_count, 2)
-
-    # Add similar tests for other providers for process_pdf...
-
-if __name__ == '__main__':
-    unittest.main()
+        # Set rotation in config
+        config.image_processing_settings["rotation"] = 90
+        result = process_single_image(image_path, "openai", config)
+        assert result == "Mocked OpenAI transcription"
+        # You could also check if preprocess_image was called with the correct rotation
+        # This would require patching preprocess_image, which is more complex.
