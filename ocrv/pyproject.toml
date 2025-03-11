@@ -18,6 +18,5 @@ dependencies = [
     "PyMuPDF",
     "opencv-python-headless",
     "python-dotenv",
-    "imghdr",
     "typing-extensions",
 ]
