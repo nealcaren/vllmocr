@@ -6,6 +6,7 @@ import anthropic
 import google.generativeai as genai
 import openai
 import ollama
+import requests
 
 from .config import AppConfig, get_api_key, get_default_model
 from .utils import handle_error
@@ -39,6 +40,12 @@ def _transcribe_with_openai(image_path: str, api_key: str, model: str = "gpt-4o"
             ],
         )
         return response.choices[0].message.content.strip()
+    except openai.APIError as e:
+        handle_error(f"OpenAI API error: {e}", e)
+    except openai.RateLimitError as e:
+        handle_error(f"OpenAI rate limit exceeded: {e}", e)
+    except openai.Timeout as e:
+        handle_error(f"OpenAI API request timed out: {e}", e)
     except Exception as e:
         handle_error(f"Error during OpenAI transcription", e)
 
@@ -69,6 +76,12 @@ def _transcribe_with_anthropic(image_path: str, api_key: str, model: str = "clau
             ],
         ).content[0].text
         return response
+    except anthropic.APIConnectionError as e:
+        handle_error(f"Anthropic API connection error: {e}", e)
+    except anthropic.RateLimitError as e:
+        handle_error(f"Anthropic rate limit exceeded: {e}", e)
+    except anthropic.APIStatusError as e:
+        handle_error(f"Anthropic API status error: {e}", e)
     except Exception as e:
         handle_error(f"Error during Anthropic transcription", e)
 
@@ -81,6 +94,10 @@ def _transcribe_with_google(image_path: str, api_key: str, model: str = "gemini-
         image = genai.Part(data=open(image_path, "rb").read(), mime_type="image/png")
         response = model_instance.generate_content([ocr_prompt, image])
         return response.text
+    except google.api_core.exceptions.GoogleAPIError as e:
+        handle_error(f"Google API error: {e}", e)
+    except google.api_core.exceptions.RetryError as e:
+        handle_error(f"Google API retry error: {e}", e)
     except Exception as e:
         handle_error(f"Error during Google Gemini transcription", e)
 
@@ -100,6 +117,8 @@ def _transcribe_with_ollama(image_path: str, model: str) -> str:
             ],
         )
         return response["message"]["content"].strip()
+    except requests.exceptions.RequestException as e:
+        handle_error(f"Ollama API request error: {e}", e)
     except Exception as e:
         handle_error(f"Error during Ollama transcription", e)
 
