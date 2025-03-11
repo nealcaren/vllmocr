@@ -1,15 +1,18 @@
+import logging
 import os
+import re
 import tempfile
 from typing import List
 
 import cv2
 import fitz  # PyMuPDF
 
+from .utils import handle_error
+
 
 def sanitize_filename(name: str) -> str:
     """Replace any non-alphanumeric characters with underscores."""
-    import re
-    return re.sub(r'[^\w\-\.]+', '_', name)
+    return re.sub(r"[^\w\-\.]+", "_", name)
 
 def check_image_quality(pixmap, dpi_threshold: int = 300) -> None:
     """Check if image DPI is below the threshold and print a warning."""
@@ -21,9 +24,10 @@ def check_image_quality(pixmap, dpi_threshold: int = 300) -> None:
 
 def preprocess_image(image_path: str, output_path: str, rotation: int = 0, debug: bool = False) -> str:
     """Preprocess image to enhance OCR accuracy."""
+    logging.info(f"Preprocessing image: {image_path}")
     image = cv2.imread(image_path)
     if image is None:
-        raise ValueError(f"Could not read image at {image_path}")
+        handle_error(f"Could not read image at {image_path}")
 
     # Convert to grayscale if not already
     if len(image.shape) == 3:
@@ -74,12 +78,16 @@ def pdf_to_images(pdf_path: str, output_dir: str, dpi: int = 300) -> List[str]:
     Returns:
         A list of paths to the generated images.
     """
-    doc = fitz.open(pdf_path)
-    image_paths = []
-    for i, page in enumerate(doc):
-        pix = page.get_pixmap(dpi=dpi)
-        check_image_quality(pix)
-        temp_image_path = os.path.join(output_dir, f"page_{i+1}.png")
-        pix.save(temp_image_path)
-        image_paths.append(temp_image_path)
-    return image_paths
+    logging.info(f"Converting PDF to images: {pdf_path}")
+    try:
+        doc = fitz.open(pdf_path)
+        image_paths = []
+        for i, page in enumerate(doc):
+            pix = page.get_pixmap(dpi=dpi)
+            check_image_quality(pix)
+            temp_image_path = os.path.join(output_dir, f"page_{i+1}.png")
+            pix.save(temp_image_path)
+            image_paths.append(temp_image_path)
+        return image_paths
+    except Exception as e:
+        handle_error(f"Error during PDF to image conversion: {pdf_path}", e)
