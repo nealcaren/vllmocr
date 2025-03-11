@@ -2,7 +2,7 @@ import argparse
 import os
 import sys
 import tempfile
-from typing import List
+from typing import List, Optional
 
 from .image_processing import preprocess_image, pdf_to_images, sanitize_filename
 from .llm_interface import transcribe_image
