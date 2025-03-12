@@ -7,6 +7,7 @@ import anthropic
 from google import genai
 from google.genai import types
 import google.api_core
+import google.generativeai as genai
 import openai
 import ollama
 import os
@@ -119,7 +120,7 @@ def _transcribe_with_google(image_path: str, api_key: str, prompt: str, model: s
         )
         return response.text
 
-    except google.api_core.exceptions.GoogleAPIError as e:
+    except genai.GenerativeAIError as e:
         handle_error(f"Google API error: {e}", e)
 
     except Exception as e:
