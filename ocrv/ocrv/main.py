@@ -77,7 +77,10 @@ def main():
                         help="Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     args = parser.parse_args()
 
-    setup_logging("DEBUG")
+    log_level = args.log_level.upper()
+    if args.debug:
+        log_level = "DEBUG"
+    setup_logging(log_level)
 
     import logging
     logging.info("TRACE: Starting main function")
