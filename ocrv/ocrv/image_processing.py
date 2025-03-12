@@ -50,18 +50,18 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
         
         # Convert to grayscale if not already
         if len(image.shape) == 3:
-        logging.debug("Converting to grayscale")
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        logging.debug(f"Grayscale image shape: {gray.shape}, type: {type(gray)}")
-    else:
-        gray = image.copy()
-        logging.debug(f"Image already grayscale. Shape: {gray.shape}, type: {type(gray)}")
+            logging.debug("Converting to grayscale")
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            logging.debug(f"Grayscale image shape: {gray.shape}, type: {type(gray)}")
+        else:
+            gray = image.copy()
+            logging.debug(f"Image already grayscale. Shape: {gray.shape}, type: {type(gray)}")
 
-    # Enhance contrast
-    logging.debug("Enhancing contrast")
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-    enhanced = clahe.apply(gray)
-    logging.debug(f"Enhanced image shape: {enhanced.shape}, type: {type(enhanced)}")
+        # Enhance contrast
+        logging.debug("Enhancing contrast")
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        enhanced = clahe.apply(gray)
+        logging.debug(f"Enhanced image shape: {enhanced.shape}, type: {type(enhanced)}")
 
         # Apply a lighter blur to preserve details
         logging.debug("Applying blur")
@@ -72,24 +72,24 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
         logging.debug("Denoising")
         denoised = cv2.fastNlMeansDenoising(blurred, h=7)
         logging.debug(f"Denoised image shape: {denoised.shape}, type: {type(denoised)}")
-    # Apply manual rotation if specified
-    if rotation in {90, 180, 270}:
-        logging.debug(f"Rotating image by {rotation} degrees")
-        denoised = cv2.rotate(denoised, {90: cv2.ROTATE_90_CLOCKWISE, 180: cv2.ROTATE_180, 270: cv2.ROTATE_90_COUNTERCLOCKWISE}[rotation])
-        logging.debug(f"Rotated image shape: {denoised.shape}, type: {type(denoised)}")
+        # Apply manual rotation if specified
+        if rotation in {90, 180, 270}:
+            logging.debug(f"Rotating image by {rotation} degrees")
+            denoised = cv2.rotate(denoised, {90: cv2.ROTATE_90_CLOCKWISE, 180: cv2.ROTATE_180, 270: cv2.ROTATE_90_COUNTERCLOCKWISE}[rotation])
+            logging.debug(f"Rotated image shape: {denoised.shape}, type: {type(denoised)}")
 
-    logging.debug("Applying adaptive thresholding")
-    binary = cv2.adaptiveThreshold(denoised, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-    logging.debug(f"Binary image shape: {binary.shape}, type: {type(binary)}")
+        logging.debug("Applying adaptive thresholding")
+        binary = cv2.adaptiveThreshold(denoised, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+        logging.debug(f"Binary image shape: {binary.shape}, type: {type(binary)}")
 
-    # Save intermediate results if debug is enabled
-    if debug:
-        debug_dir = os.path.join(os.path.dirname(image_path), "debug_outputs")
-        os.makedirs(debug_dir, exist_ok=True)
-        cv2.imwrite(os.path.join(debug_dir, f"{os.path.basename(image_path)}_gray.png"), gray)
-        cv2.imwrite(os.path.join(debug_dir, f"{os.path.basename(image_path)}_enhanced.png"), enhanced)
-        cv2.imwrite(os.path.join(debug_dir, f"{os.path.basename(image_path)}_blurred.png"), blurred)
-        cv2.imwrite(os.path.join(debug_dir, f"{os.path.basename(image_path)}_denoised.png"), denoised)
+        # Save intermediate results if debug is enabled
+        if debug:
+            debug_dir = os.path.join(os.path.dirname(image_path), "debug_outputs")
+            os.makedirs(debug_dir, exist_ok=True)
+            cv2.imwrite(os.path.join(debug_dir, f"{os.path.basename(image_path)}_gray.png"), gray)
+            cv2.imwrite(os.path.join(debug_dir, f"{os.path.basename(image_path)}_enhanced.png"), enhanced)
+            cv2.imwrite(os.path.join(debug_dir, f"{os.path.basename(image_path)}_blurred.png"), blurred)
+            cv2.imwrite(os.path.join(debug_dir, f"{os.path.basename(image_path)}_denoised.png"), denoised)
 
         if output_path.lower().endswith(".jpg"):
             cv2.imwrite(output_path, binary, [cv2.IMWRITE_JPEG_QUALITY, 95])
