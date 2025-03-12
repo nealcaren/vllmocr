@@ -36,7 +36,7 @@ def process_pdf(pdf_path: str, provider: Optional[str], config: AppConfig, model
             if model in ("haiku", "sonnet", "anththropic", "claude"):
                 provider = "anthropic"
             elif model in ("4o-mini", "gpt-4o"):
-                provider = "chatgpt"
+                provider = "openai"
 
         try:
             image_paths = pdf_to_images(pdf_path, temp_dir)

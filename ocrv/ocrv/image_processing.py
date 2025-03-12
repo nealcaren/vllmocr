@@ -86,12 +86,6 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
         cv2.imwrite(output_path, binary)
     return output_path
 
-import fitz  # PyMuPDF
-import os
-import logging
-from typing import List
-
-
 def pdf_to_images(pdf_path: str, output_dir: str) -> List[str]:
     """Converts a PDF file into a series of images (one per page)."""
     logging.info(f"Converting PDF to images: {pdf_path}")
@@ -111,14 +105,10 @@ def pdf_to_images(pdf_path: str, output_dir: str) -> List[str]:
         temp_image_path = os.path.join(output_dir, f"page_{i+1}.png")
         try:
             pixmap = page.get_pixmap()
-        except Exception as e:
-            logging.error(f"Error getting pixmap for page {i+1}: {e}")
-            continue # skip this page
-        try:
             pixmap.save(temp_image_path)  # Directly save the image
             image_paths.append(temp_image_path)
         except Exception as e:
-            logging.error(f"Error saving image for page {i+1}: {e}")
+            logging.error(f"Error processing page {i+1}: {e}")
             continue  # Skip problematic pages
 
     if not image_paths:
