@@ -14,12 +14,20 @@ def process_single_image(image_path: str, provider: Optional[str], config: AppCo
     """Processes a single image and returns the transcribed text."""
     with tempfile.TemporaryDirectory() as temp_dir:
         if provider is None and model:
-            if model in ("haiku", "sonnet", "anththropic", "claude"):
+            if model in ("haiku", "sonnet", "anthropic", "claude"):
                 provider = "anthropic"
             elif model in ("4o-mini", "gpt-4o"):
                 provider = "openai"
+        
+        # Add debug logging
+        import logging
+        logging.debug(f"Processing image: {image_path} with provider: {provider}")
+        
         output_format = determine_output_format(image_path, provider)
+        logging.debug(f"Determined output format: {output_format}")
+        
         output_path = os.path.join(temp_dir, f"preprocessed.{output_format}")
+        logging.debug(f"Output path: {output_path}")
         preprocessed_path = preprocess_image(
             image_path,
             output_path,
@@ -33,7 +41,7 @@ def process_pdf(pdf_path: str, provider: Optional[str], config: AppConfig, model
     """Processes a PDF and returns the transcribed text."""
     with tempfile.TemporaryDirectory() as temp_dir:
         if provider is None and model:
-            if model in ("haiku", "sonnet", "anththropic", "claude"):
+            if model in ("haiku", "sonnet", "anthropic", "claude"):
                 provider = "anthropic"
             elif model in ("4o-mini", "gpt-4o"):
                 provider = "openai"
@@ -74,7 +82,7 @@ def main():
 
     # Infer provider from model if provider is not given
     if args.provider is None and args.model:
-        if args.model in ("haiku", "sonnet", "anththropic", "claude"):
+        if args.model in ("haiku", "sonnet", "anthropic", "claude"):
             args.provider = "anthropic"
         elif args.model in ("4o-mini", "gpt-4o"):
             args.provider = "openai"
