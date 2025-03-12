@@ -101,9 +101,16 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
         import traceback
         logging.error(f"TRACE: Traceback: {traceback.format_exc()}")
         raise
+import logging
+import os
+import fitz  # PyMuPDF
+from typing import List
+
 
 def pdf_to_images(pdf_path: str, output_dir: str) -> List[str]:
-    """Converts a PDF file into a series of images (one per page)."""
+    """Converts a PDF file into a series of images (one per page).
+       If a page is a single image, it extracts the original image instead.
+    """
     logging.info(f"Converting PDF to images: {pdf_path}")
 
     try:
@@ -118,17 +125,31 @@ def pdf_to_images(pdf_path: str, output_dir: str) -> List[str]:
         raise ValueError("PDF has no pages.")
 
     for i, page in enumerate(doc):
-        temp_image_path = os.path.join(output_dir, f"page_{i+1}.png")
-        try:
-            pixmap = page.get_pixmap()
-            pixmap.save(temp_image_path)  # Directly save the image
-            image_paths.append(temp_image_path)
-        except Exception as e:
-            logging.error(f"Error processing page {i+1}: {e}")
-            continue  # Skip problematic pages
+        img_list = page.get_images(full=True)
+        
+        if len(img_list) == 1:  # If there's exactly one image, extract it
+            xref = img_list[0][0]  # XREF number of the image
+            img = doc.extract_image(xref)
+            img_ext = img["ext"]  # Image format (png, jpg, etc.)
+            img_data = img["image"]
+
+            temp_image_path = os.path.join(output_dir, f"page_{i+1}.{img_ext}")
+            with open(temp_image_path, "wb") as img_file:
+                img_file.write(img_data)
+
+            logging.info(f"Extracted original image from page {i+1}")
+        else:
+            temp_image_path = os.path.join(output_dir, f"page_{i+1}.png")
+            try:
+                pixmap = page.get_pixmap()
+                pixmap.save(temp_image_path)  # Save rendered image
+            except Exception as e:
+                logging.error(f"Error processing page {i+1}: {e}")
+                continue  # Skip problematic pages
+
+        image_paths.append(temp_image_path)
 
     if not image_paths:
         raise ValueError("No images were generated from the PDF.")
 
     return image_paths
-

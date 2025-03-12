@@ -20,3 +20,8 @@ dependencies = [
     "python-dotenv",
     "typing-extensions",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+]

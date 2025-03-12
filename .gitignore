@@ -1,0 +1,6 @@
+.aider*
+.DS_Store
+/ocrv/ocrv.egg-info
+/ocrv/ocrv/__pycache__
+/tests/__pycache__
+/tests/data/debug_outputs
