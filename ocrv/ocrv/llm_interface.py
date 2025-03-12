@@ -133,6 +133,22 @@ def _transcribe_with_ollama(image_path: str, prompt: str, model: str) -> str:
     except Exception as e:
         handle_error(f"Error during Ollama transcription", e)
 
+def _post_process_openai(text: str) -> str:
+    """Applies post-processing to OpenAI output."""
+    return text.strip()
+
+def _post_process_anthropic(text: str) -> str:
+    """Applies post-processing to Anthropic output."""
+    return text.strip()
+
+def _post_process_google(text: str) -> str:
+    """Applies post-processing to Google Gemini output."""
+    return text.strip()
+
+def _post_process_ollama(text: str) -> str:
+    """Applies post-processing to Ollama output."""
+    return text.strip()
+
 def transcribe_image(image_path: str, provider: str, config: AppConfig, model: Optional[str] = None, custom_prompt: Optional[str] = None) -> str:
     """Transcribes text from an image using the specified LLM provider and model.
 
