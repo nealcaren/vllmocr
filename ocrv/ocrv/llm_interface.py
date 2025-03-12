@@ -5,6 +5,7 @@ import re
 
 import anthropic
 import google.generativeai as genai
+from google.generativeai import types
 import google.api_core
 import openai
 import ollama
@@ -106,10 +107,16 @@ def _transcribe_with_google(image_path: str, api_key: str, prompt: str, model: s
     """
     logging.info(f"Transcribing with Google, model: {model}")
     try:
-        genai.configure(api_key=api_key)
-        model_instance = genai.GenerativeModel(model)
-        image = genai.Part(data=open(image_path, "rb").read(), mime_type="image/png")
-        response = model_instance.generate_content([prompt, image])
+        client = genai.Client(api_key=api_key)
+        image_type = os.path.splitext(image_path)[1][1:].lower()
+        if image_type == "jpg":
+            image_type = "jpeg"
+
+        response = client.models.generate_content(
+            model=model,
+            contents=[prompt,
+                      types.Part.from_bytes(data=open(image_path, "rb").read(), mime_type=f"image/{image_type}")]
+        )
         return response.text
 
     except google.api_core.exceptions.GoogleAPIError as e:
