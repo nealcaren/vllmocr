@@ -38,6 +38,7 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
     """Preprocess image to enhance OCR accuracy."""
     logging.info(f"Preprocessing image: {image_path}")
     image = cv2.imread(image_path)
+    logging.debug(f"cv2.imread returned type: {type(image)}")  # Log the return type
     if image is None:
         handle_error(f"Could not read image at {image_path}")
 

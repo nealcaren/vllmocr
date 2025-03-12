@@ -2,6 +2,7 @@ import logging
 import sys
 import imghdr
 
+
 def setup_logging(log_level: str = "INFO"):
     """Configures logging for the application."""
     numeric_level = getattr(logging, log_level.upper(), None)
@@ -14,12 +15,14 @@ def setup_logging(log_level: str = "INFO"):
         stream=sys.stderr,  # Log to stderr to keep stdout clean for output
     )
 
+
 def handle_error(message: str, error: Exception = None):
     """Handles errors, logs them, and exits."""
-    logging.error(message)
+    logging.error(f"Handling error: {message}")  # Log the message
     if error:
-        logging.exception(error)  # Log the full traceback
+        logging.exception(error)  # Log the exception if provided
     sys.exit(1)
+
 
 def validate_image_file(file_path: str) -> bool:
     """
