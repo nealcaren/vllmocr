@@ -31,10 +31,9 @@ def _transcribe_with_openai(image_path: str, api_key: str, model: str = "gpt-4o"
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "content": DEFAULT_OCR_PROMPT},
                         {
-                            "type": "image_url",
-                            "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
+                            "type": "text",
+                            "text": f"{DEFAULT_OCR_PROMPT}\n\ndata:image/jpeg;base64,{base64_image}",
                         },
                     ],
                 }
