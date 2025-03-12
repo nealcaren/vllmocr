@@ -1,0 +1,2 @@
+[console_scripts]
+vllm-ocr = vllm_ocr.main:main

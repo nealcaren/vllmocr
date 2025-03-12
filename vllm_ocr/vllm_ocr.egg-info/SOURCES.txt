@@ -1,6 +1,0 @@
-pyproject.toml
-vllm_ocr.egg-info/PKG-INFO
-vllm_ocr.egg-info/SOURCES.txt
-vllm_ocr.egg-info/dependency_links.txt
-vllm_ocr.egg-info/requires.txt
-vllm_ocr.egg-info/top_level.txt
