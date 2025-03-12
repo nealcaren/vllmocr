@@ -32,10 +32,9 @@ def determine_output_format(image_path: str, provider: str) -> str:
     else:
         image_type = imghdr.what(image_path)
         if image_type:
-            # Ensure the type is valid and return with a leading .
             return image_type
         else:
-            return "png" #default to png if we can't tell
+            return "png"
 
 def preprocess_image(image_path: str, output_path: str, provider: str, rotation: int = 0, debug: bool = False) -> str:
     """Preprocess image to enhance OCR accuracy."""
@@ -66,7 +65,7 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
 
     binary = cv2.adaptiveThreshold(denoised, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
 
-   # Save intermediate results if debug is enabled
+    # Save intermediate results if debug is enabled
     if debug:
         debug_dir = os.path.join(os.path.dirname(image_path), "debug_outputs")
         os.makedirs(debug_dir, exist_ok=True)
@@ -78,12 +77,8 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
     if output_path.lower().endswith(".jpg"):
         cv2.imwrite(output_path, binary, [cv2.IMWRITE_JPEG_QUALITY, 95])
     else:
-        cv2.imwrite(output_path, binary)  # writes the image
+        cv2.imwrite(output_path, binary)
     return output_path
-
-
-def pdf_to_images(pdf_path: str, output_dir: str) -> List[str]:
-    """Converts a PDF file into a series of images (one per page) without rescaling.
 
     Args:
         pdf_path: Path to the PDF file.
