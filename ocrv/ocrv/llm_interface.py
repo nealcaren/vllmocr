@@ -4,11 +4,9 @@ from typing import Optional
 import re
 
 import anthropic
-from google import generativeai
-from google.generativeai import types
+import google.generativeai as genai
 import google.api_core
 import openai
-import PIL.Image
 import ollama
 import os
 import requests
@@ -108,18 +106,10 @@ def _transcribe_with_google(image_path: str, api_key: str, prompt: str, model: s
     """
     logging.info(f"Transcribing with Google, model: {model}")
     try:
-        client = generativeai.Client(api_key=api_key)
-
-        # Extract filename from path for the upload
-        filename = os.path.basename(image_path)
-
-        image = PIL.Image.open(image_path)
-
-        response = client.models.generate_content(
-            model=model,
-            contents=[prompt, image]
-        )
-
+        genai.configure(api_key=api_key)
+        model_instance = genai.GenerativeModel(model)
+        image = genai.Part(data=open(image_path, "rb").read(), mime_type="image/png")
+        response = model_instance.generate_content([prompt, image])
         return response.text
 
     except google.api_core.exceptions.GoogleAPIError as e:
