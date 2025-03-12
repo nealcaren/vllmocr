@@ -5,10 +5,11 @@ import re
 
 import anthropic
 import google.generativeai as genai
+from google.generativeai import types
 import google.api_core
 import openai
 import ollama
-import os  # Import the os module
+import os
 import requests
 
 from .config import AppConfig, get_api_key, get_default_model
@@ -100,18 +101,53 @@ def _transcribe_with_anthropic(image_path: str, api_key: str, prompt: str, model
 
 
 def _transcribe_with_google(image_path: str, api_key: str, prompt: str, model: str = "gemini-1.5-pro-002") -> str:
-    """Transcribes the text in the given image using Google Gemini."""
+    """Transcribes the text in the given image using Google Gemini.
+
+    NOTE: Update your config with the new model names.
+    """
     logging.info(f"Transcribing with Google, model: {model}")
     try:
-        genai.configure(api_key=api_key)
-        model_instance = genai.GenerativeModel(model)
-        image = genai.Part(data=open(image_path, "rb").read(), mime_type="image/png")
-        response = model_instance.generate_content([prompt, image])
+        client = genai.Client(api_key=api_key)
+
+        # Extract filename from path for the upload
+        filename = os.path.basename(image_path)
+
+        # Upload the file
+        uploaded_file = client.files.upload(file=image_path)
+
+
+        contents = [
+            types.Content(
+                role="user",
+                parts=[
+                    types.Part.from_uri(
+                        file_uri=uploaded_file.uri,
+                        mime_type=uploaded_file.mime_type,
+                    ),
+                    types.Part.from_text(text=prompt),
+                ],
+            ),
+        ]
+
+        generate_content_config = types.GenerateContentConfig(
+            max_output_tokens=4096, # Set a reasonable max token limit
+            # Add other config options if needed, like temperature
+        )
+
+
+        response = client.models.generate_content(
+            model=model,
+            contents=contents,
+            config=generate_content_config,
+        )
         return response.text
+
     except google.api_core.exceptions.GoogleAPIError as e:
         handle_error(f"Google API error: {e}", e)
+
     except Exception as e:
         handle_error(f"Error during Google Gemini transcription", e)
+
 
 def _transcribe_with_ollama(image_path: str, prompt: str, model: str) -> str:
     """Transcribes the text in the given image using Ollama."""
