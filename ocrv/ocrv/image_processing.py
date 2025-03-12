@@ -11,6 +11,7 @@ import os
 import re
 import tempfile
 from typing import List, Optional
+from PIL import Image
 
 import cv2
 import fitz  # PyMuPDF
@@ -22,23 +23,6 @@ from .utils import handle_error
 def sanitize_filename(name: str) -> str:
     """Replace any non-alphanumeric characters with underscores."""
     return re.sub(r"[^\w\-\.]+", "_", name)
-
-
-def check_image_quality(pixmap, dpi_threshold: int = 300) -> None:
-    """Check if image DPI is below the threshold and print a warning."""
-    if isinstance(pixmap, tuple):
-        pixmap = pixmap[0]
-
-    if isinstance(pixmap, fitz.Pixmap):
-        dpi_x = pixmap.irect.width * 72 / pixmap.width
-        dpi_y = pixmap.irect.height * 72 / pixmap.height
-    else:  # Assume it's a NumPy array (from cv2)
-        dpi_x = pixmap.shape[1] * 72 / pixmap.shape[1]
-        dpi_y = pixmap.shape[0] * 72 / pixmap.shape[0]
-    dpi = min(dpi_x, dpi_y)
-
-    if dpi < dpi_threshold:
-        print(f"Warning: Image DPI is {dpi:.1f}, which is below the recommended {dpi_threshold} DPI. OCR accuracy may be reduced.")
 
 
 def determine_output_format(image_path: str, provider: str) -> str:
@@ -97,31 +81,34 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
         cv2.imwrite(output_path, binary)  # writes the image
     return output_path
 
-def pdf_to_images(pdf_path: str, output_dir: str, dpi: int = 300) -> List[str]:
-    """Converts a PDF file into a series of images (one per page).
+
+def pdf_to_images(pdf_path: str, output_dir: str) -> List[str]:
+    """Converts a PDF file into a series of images (one per page) without rescaling.
 
     Args:
         pdf_path: Path to the PDF file.
         output_dir: Directory to save the images.
-        dpi: DPI for the output images.
 
     Returns:
         A list of paths to the generated images.
     """
     logging.info(f"Converting PDF to images: {pdf_path}")
+
     try:
         doc = fitz.open(pdf_path)
         image_paths = []
+
         for i, page in enumerate(doc):
-            pix = page.get_pixmap(dpi=dpi)  # Get the Pixmap
-            print(f"Type of pix: {type(pix)}")  # Debug print
-            print(f"Contents of pix: {pix}")  # Debug print
-            check_image_quality(pix)
-            if isinstance(pix, tuple):
-                pix = pix[0]
+            pix = page.get_pixmap()  # No scaling, default resolution
+
+            # Save the image
             temp_image_path = os.path.join(output_dir, f"page_{i+1}.png")
-            pix.save(temp_image_path)
+            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+            img.save(temp_image_path, "PNG")
             image_paths.append(temp_image_path)
+
         return image_paths
+
     except Exception as e:
-        handle_error(f"Error during PDF to image conversion: {pdf_path}", e)
+        logging.error(f"Error during PDF to image conversion: {pdf_path} - {e}")
+        return []
