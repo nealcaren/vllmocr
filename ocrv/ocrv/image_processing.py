@@ -17,8 +17,8 @@ def sanitize_filename(name: str) -> str:
 
 def check_image_quality(pixmap, dpi_threshold: int = 300) -> None:
     """Check if image DPI is below the threshold and print a warning."""
-    dpi_x = pixmap.width * 72 / pixmap.w
-    dpi_y = pixmap.height * 72 / pixmap.h
+    dpi_x = pixmap.rect.width * 72 / pixmap.width
+    dpi_y = pixmap.rect.height * 72 / pixmap.height
     dpi = min(dpi_x, dpi_y)
     if dpi < dpi_threshold:
         print(f"Warning: Image DPI is {dpi:.1f}, which is below the recommended {dpi_threshold} DPI. OCR accuracy may be reduced.")
@@ -59,25 +59,24 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
     denoised = cv2.fastNlMeansDenoising(blurred, h=7)
 
     # Apply manual rotation if specified
-    if rotation in [90, 180, 270]:
-        if rotation == 90:
-            denoised = cv2.rotate(denoised, cv2.ROTATE_90_CLOCKWISE)
-        elif rotation == 180:
-            denoised = cv2.rotate(denoised, cv2.ROTATE_180)
-        elif rotation == 270:
-            denoised = cv2.rotate(denoised, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    if rotation in {90, 180, 270}:
+        denoised = cv2.rotate(denoised, {90: cv2.ROTATE_90_CLOCKWISE, 180: cv2.ROTATE_180, 270: cv2.ROTATE_90_COUNTERCLOCKWISE}[rotation])
 
-    binary = denoised
+    binary = cv2.adaptiveThreshold(denoised, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
 
-    # Save intermediate results if debug is enabled
+   # Save intermediate results if debug is enabled
     if debug:
-        base_path = f"{image_path}_debug"
-        cv2.imwrite(f"{base_path}_1_gray.png", gray)
-        cv2.imwrite(f"{base_path}_2_enhanced.png", enhanced)
-        cv2.imwrite(f"{base_path}_3_blurred.png", blurred)
-        cv2.imwrite(f"{base_path}_4_denoised.png", denoised)
+        debug_dir = os.path.join(os.path.dirname(image_path), "debug_outputs")
+        os.makedirs(debug_dir, exist_ok=True)
+        cv2.imwrite(os.path.join(debug_dir, f"{os.path.basename(image_path)}_gray.png"), gray)
+        cv2.imwrite(os.path.join(debug_dir, f"{os.path.basename(image_path)}_enhanced.png"), enhanced)
+        cv2.imwrite(os.path.join(debug_dir, f"{os.path.basename(image_path)}_blurred.png"), blurred)
+        cv2.imwrite(os.path.join(debug_dir, f"{os.path.basename(image_path)}_denoised.png"), denoised)
 
-    cv2.imwrite(output_path, binary) #writes the image
+    if output_path.lower().endswith(".jpg"):
+        cv2.imwrite(output_path, binary, [cv2.IMWRITE_JPEG_QUALITY, 95])
+    else:
+        cv2.imwrite(output_path, binary)  # writes the image
     return output_path
 
 def pdf_to_images(pdf_path: str, output_dir: str, dpi: int = 300) -> List[str]:
