@@ -102,7 +102,9 @@ def pdf_to_images(pdf_path: str, output_dir: str, dpi: int = 300) -> List[str]:
             pix = page.get_pixmap(dpi=dpi)  # Get the Pixmap
             if isinstance(pix, tuple):
                 pix = pix[0]
-            check_image_quality(pix)
+                check_image_quality(pix)
+            else:
+                check_image_quality(pix)
             temp_image_path = os.path.join(output_dir, f"page_{i+1}.png")
             pix.save(temp_image_path)
             image_paths.append(temp_image_path)
