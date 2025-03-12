@@ -58,6 +58,12 @@ def _transcribe_with_anthropic(image_path: str, api_key: str, model: str = "clau
     try:
         client = anthropic.Anthropic(api_key=api_key)
         encoded_image = _encode_image(image_path)
+        # Determine the correct media type based on the file extension.
+        image_type = os.path.splitext(image_path)[1][1:].lower()
+        if image_type == "jpg":
+            image_type = "jpeg"  # Correct common inconsistency
+        media_type = f"image/{image_type}"
+
         response = client.messages.create(
             model=model,
             max_tokens=4096,
@@ -70,7 +76,7 @@ def _transcribe_with_anthropic(image_path: str, api_key: str, model: str = "clau
                             "type": "image",
                             "source": {
                                 "type": "base64",
-                                "media_type": "image/png",
+                                "media_type": media_type,
                                 "data": encoded_image,
                             },
                         },

@@ -2,10 +2,11 @@ import logging
 import os
 import re
 import tempfile
-from typing import List
+from typing import List, Optional
 
 import cv2
 import fitz  # PyMuPDF
+import imghdr
 
 from .utils import handle_error
 
@@ -22,7 +23,19 @@ def check_image_quality(pixmap, dpi_threshold: int = 300) -> None:
     if dpi < dpi_threshold:
         print(f"Warning: Image DPI is {dpi:.1f}, which is below the recommended {dpi_threshold} DPI. OCR accuracy may be reduced.")
 
-def preprocess_image(image_path: str, output_path: str, rotation: int = 0, debug: bool = False) -> str:
+def determine_output_format(image_path: str, provider: str) -> str:
+    """Determines the correct output format based on provider and input image type."""
+    if provider == "openai":
+        return "jpg"  # OpenAI prefers JPEG
+    else:
+        image_type = imghdr.what(image_path)
+        if image_type:
+            # Ensure the type is valid and return with a leading .
+            return image_type
+        else:
+            return "png" #default to png if we can't tell
+
+def preprocess_image(image_path: str, output_path: str, provider: str, rotation: int = 0, debug: bool = False) -> str:
     """Preprocess image to enhance OCR accuracy."""
     logging.info(f"Preprocessing image: {image_path}")
     image = cv2.imread(image_path)
@@ -64,7 +77,7 @@ def preprocess_image(image_path: str, output_path: str, rotation: int = 0, debug
         cv2.imwrite(f"{base_path}_3_blurred.png", blurred)
         cv2.imwrite(f"{base_path}_4_denoised.png", denoised)
 
-    cv2.imwrite(output_path, binary)
+    cv2.imwrite(output_path, binary) #writes the image
     return output_path
 
 def pdf_to_images(pdf_path: str, output_dir: str, dpi: int = 300) -> List[str]:
