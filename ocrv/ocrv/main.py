@@ -15,7 +15,7 @@ def process_single_image(image_path: str, provider: str, config: AppConfig, mode
     with tempfile.TemporaryDirectory() as temp_dir:
         preprocessed_path = preprocess_image(
             image_path,
-            os.path.join(temp_dir, "preprocessed.png"),
+            os.path.join(temp_dir, "preprocessed.jpg"), # Change to .jpg
             config.image_processing_settings["rotation"],
             config.debug
         )
