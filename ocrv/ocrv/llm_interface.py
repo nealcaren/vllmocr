@@ -145,24 +145,23 @@ def transcribe_image(image_path: str, provider: str, config: AppConfig, model: O
     Returns:
         The transcribed text.
 
-    Raises:
         ValueError: If the provider is not supported or if the model is required but not provided.
     """
+    if model is None:
+        provider, full_model_name = get_default_model(config)
+    else:
+        provider, full_model_name = get_default_model(config, model)
+
     api_key = get_api_key(config, provider)
-    logging.info(f"Using provider: {provider}")
+    logging.info(f"Using provider: {provider}, model: {full_model_name}")
 
     if provider == "openai":
-        openai_model = model if model else "gpt-4o"
-        return _transcribe_with_openai(image_path, api_key, model=openai_model)
+        return _transcribe_with_openai(image_path, api_key, model=full_model_name)
     elif provider == "anthropic":
-        anthropic_model = model if model else "claude-3-haiku-20240307"
-        return _transcribe_with_anthropic(image_path, api_key, model=anthropic_model)
+        return _transcribe_with_anthropic(image_path, api_key, model=full_model_name)
     elif provider == "google":
-        google_model = model if model else "gemini-1.5-pro-002"
-        return _transcribe_with_google(image_path, api_key, model=google_model)
+        return _transcribe_with_google(image_path, api_key, model=full_model_name)
     elif provider == "ollama":
-        if not model:
-            handle_error("Model must be specified when using Ollama provider.")
-        return _transcribe_with_ollama(image_path, model=model)
+        return _transcribe_with_ollama(image_path, model=full_model_name)
     else:
         handle_error(f"Unsupported LLM provider: {provider}")

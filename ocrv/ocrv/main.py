@@ -41,12 +41,13 @@ def main():
     parser.add_argument("-o", "--output", type=str, help="Output file name (default: auto-generated).")
     parser.add_argument("-p", "--provider", type=str, required=True,
                         help="LLM provider ('openai', 'anthropic', 'google', 'ollama').")
-    parser.add_argument("-m", "--model", type=str, help="Model to use (required for Ollama, optional for others).")
+    parser.add_argument("-m", "--model", type=str, help="Model alias to use (e.g., 'haiku', 'gpt-4o', 'llama3').")
     parser.add_argument("--dpi", type=int, default=300, help="DPI for PDF rendering (default: 300).")
     parser.add_argument("--rotate", type=int, choices=[0, 90, 180, 270], default=0,
                         help="Manually rotate image by specified degrees (0, 90, 180, or 270)")
     parser.add_argument("--debug", action="store_true", help="Save intermediate processing steps for debugging")
-    parser.add_argument("--log-level", type=str, default="INFO", help="Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
+    parser.add_argument("--log-level", type=str, default="INFO",
+                        help="Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     args = parser.parse_args()
 
     setup_logging(args.log_level)
@@ -56,18 +57,14 @@ def main():
     config.dpi = args.dpi
     config.image_processing_settings["rotation"] = args.rotate
     config.debug = args.debug
-
-    # Validate that model is provided if provider is ollama
-    if args.provider == "ollama" and not args.model:
-        print("Error: --model must be specified when using Ollama provider.", file=sys.stderr)
-        handle_error("--model must be specified when using Ollama provider.")
-
     input_file = args.input
-    if not os.path.exists(input_file):
-        handle_error(f"Input file not found: {input_file}")
 
-    file_extension = os.path.splitext(input_file)[1].lower()
     try:
+        if not os.path.exists(input_file):
+            handle_error(f"Input file not found: {input_file}")
+
+        file_extension = os.path.splitext(input_file)[1].lower()
+
         if file_extension == ".pdf":
             extracted_text = process_pdf(input_file, args.provider, config, args.model)
         elif file_extension.lower() in (".png", ".jpg", ".jpeg"):
@@ -76,13 +73,17 @@ def main():
             extracted_text = process_single_image(input_file, args.provider, config, args.model)
         else:
             handle_error(f"Unsupported file type: {file_extension}")
+
     except Exception as e:
-        handle_error("An unexpected error occurred", e)
+        handle_error(f"An error occurred: {e}")
 
 
     output_filename = args.output
     if not output_filename:
-        output_filename = f"{os.path.splitext(input_file)[0]}_{sanitize_filename(args.provider)}_{sanitize_filename(args.model if args.model else '')}.md"
+        # Use the model alias in the filename if provided, otherwise, use provider
+        model_string = args.model if args.model else args.provider
+        output_filename = f"{os.path.splitext(input_file)[0]}_{sanitize_filename(model_string)}.md"
+
     with open(output_filename, 'w') as f:
         f.write(extracted_text)
 

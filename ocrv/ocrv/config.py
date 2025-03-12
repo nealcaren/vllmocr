@@ -1,7 +1,18 @@
 import os
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple
 
+
+# Mapping of model aliases to (provider, full_model_name)
+MODEL_MAPPING = {
+    "haiku": ("anthropic", "claude-3-haiku-20240307"),
+    "sonnet": ("anthropic", "claude-3-sonnet-20240229"),
+    "claude": ("anthropic", "claude-3-sonnet-20240229"),  # Default to Sonnet
+    "gpt-4o": ("openai", "gpt-4o"),
+    "llama3": ("ollama", "llama3.2-vision"), #added
+    "minicpm": ("ollama", "minicpm-v"), #added
+
+}
 
 @dataclass
 class AppConfig:
