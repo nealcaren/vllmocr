@@ -31,7 +31,7 @@ def _transcribe_with_openai(image_path: str, api_key: str, model: str = "gpt-4o"
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "content": ocr_prompt},
+                        {"type": "text", "content": DEFAULT_OCR_PROMPT},
                         {
                             "type": "image_url",
                             "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
@@ -41,7 +41,7 @@ def _transcribe_with_openai(image_path: str, api_key: str, model: str = "gpt-4o"
             ],
         )
         return response.choices[0].message.content.strip()
-    except openai.OpenAIError as e:  # Catch the general OpenAIError
+    except openai.OpenAIError as e:
         handle_error(f"OpenAI API error: {e}", e)
     except Exception as e:
         handle_error(f"Error during OpenAI transcription", e)
