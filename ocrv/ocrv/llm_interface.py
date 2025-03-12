@@ -147,11 +147,7 @@ def transcribe_image(image_path: str, provider: str, config: AppConfig, model: O
 
         ValueError: If the provider is not supported or if the model is required but not provided.
     """
-    if model is None:
-        provider, full_model_name = get_default_model(config)
-    else:
-        provider, full_model_name = get_default_model(config, model)
-
+    provider, full_model_name = get_default_model(config, model)
     api_key = get_api_key(config, provider)
     logging.info(f"Using provider: {provider}, model: {full_model_name}")
 

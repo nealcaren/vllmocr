@@ -1,7 +1,7 @@
 import os
 import pytest
 from ocrv.main import process_single_image, process_pdf
-from ocrv.config import AppConfig, load_config
+from ocrv.config import AppConfig, load_config, MODEL_MAPPING
 from unittest.mock import patch, ANY
 
 # Get the absolute path to the project root directory
@@ -17,77 +17,86 @@ def config():
 def test_data_dir():
     return os.path.join(PROJECT_ROOT, "tests", "data")
 
-@pytest.mark.parametrize("provider, model", [
+@pytest.mark.parametrize("provider, model_alias", [
     ("openai", "gpt-4o"),
-    ("anthropic", "claude-3-haiku-20240307"),
-    ("google", "gemini-1.5-pro-002"),
-    ("ollama", "llama3.2-vision"),
-    ("ollama", "minicpm-v"),
+    ("anthropic", "haiku"),
+    ("anthropic", "sonnet"),
+    ("google", "gemini-1.5-pro-002"),  # Assuming you want a default for Google
+    ("ollama", "llama3"),
+    ("ollama", "minicpm"),
 ])
-def test_process_single_image(config, test_data_dir, provider, model):
+def test_process_single_image(config, test_data_dir, provider, model_alias):
     image_path = os.path.join(test_data_dir, "sample.png")
 
-    # NO LONGER set dummy API keys here.  We're using the real ones.
-
     if provider == "ollama":
-        result = process_single_image(image_path, provider, config, model=model)
-        # Add assertions based on expected output.  Since we're using real API calls now,
-        # we can't just assert a mocked string.  We need to check for *something* reasonable.
+        result = process_single_image(image_path, provider, config, model=model_alias)
         assert isinstance(result, str)
-        assert len(result) > 0  # Assuming *something* should be detected
-
+        assert len(result) > 0
     else:
-        # For non-Ollama providers, we'll still mock to avoid unnecessary API calls
-        # during routine testing.  You can create separate integration tests (see below)
-        # that use the real API keys.
         with patch(f'ocrv.llm_interface._transcribe_with_{provider}') as mock_transcribe:
             mock_transcribe.return_value = f"Mocked {provider} transcription"
-            result = process_single_image(image_path, provider, config)
+            result = process_single_image(image_path, provider, config, model=model_alias)
             assert result == f"Mocked {provider} transcription"
-            mock_transcribe.assert_called_once_with(ANY, ANY, model=model)
+            #  get the expected full model name
+            expected_provider, expected_model = MODEL_MAPPING[model_alias]
+            assert expected_provider == provider
 
-@pytest.mark.parametrize("provider, model", [
+            if provider == "openai":
+                mock_transcribe.assert_called_once_with(ANY, ANY, model=expected_model)
+            elif provider == "anthropic":
+                mock_transcribe.assert_called_once_with(ANY, ANY, model=expected_model)
+            elif provider == "google":
+                mock_transcribe.assert_called_once_with(ANY, ANY, model=expected_model)
+            elif provider == "ollama":
+                mock_transcribe.assert_called_once_with(ANY, model=expected_model)
+
+
+
+@pytest.mark.parametrize("provider, model_alias", [
     ("openai", "gpt-4o"),
-    ("anthropic", "claude-3-haiku-20240307"),
-    ("google", "gemini-1.5-pro-002"),
-    ("ollama", "llama3.2-vision"),
-    ("ollama", "minicpm-v"),
+    ("anthropic", "haiku"),
+    ("anthropic", "sonnet"),
+    ("google", "gemini-1.5-pro-002"),  # Assuming you want a default for Google
+    ("ollama", "llama3"),
+    ("ollama", "minicpm"),
 ])
-def test_process_pdf(config, test_data_dir, provider, model):
+def test_process_pdf(config, test_data_dir, provider, model_alias):
     pdf_path = os.path.join(test_data_dir, "sample.pdf")
 
-    # NO LONGER set dummy API keys here.  We're using the real ones.
-
     if provider == "ollama":
-        result = process_pdf(pdf_path, provider, config, model=model)
-        # Add assertions based on expected output.
+        result = process_pdf(pdf_path, provider, config, model=model_alias)
         assert isinstance(result, str)
-        assert len(result) > 0  # Assuming *something* should be detected
-
+        assert len(result) > 0
     else:
-        # Mock non-Ollama providers for unit tests.
         with patch(f'ocrv.llm_interface._transcribe_with_{provider}') as mock_transcribe:
             mock_transcribe.return_value = f"Mocked {provider} transcription"
-            result = process_pdf(pdf_path, provider, config)
+            result = process_pdf(pdf_path, provider, config, model=model_alias)
             assert result == f"Mocked {provider} transcription"
-            mock_transcribe.assert_called_once_with(ANY, ANY, model=model)
-            assert mock_transcribe.call_count == 1  # Assuming a single-page PDF
 
-# Add more tests for different file types, edge cases, and image processing settings
+            #  get the expected full model name
+            expected_provider, expected_model = MODEL_MAPPING[model_alias]
+            assert expected_provider == provider
+
+            if provider == "openai":
+                mock_transcribe.assert_called_once_with(ANY, ANY, model=expected_model)
+            elif provider == "anthropic":
+                mock_transcribe.assert_called_once_with(ANY, ANY, model=expected_model)
+            elif provider == "google":
+                mock_transcribe.assert_called_once_with(ANY, ANY, model=expected_model)
+            elif provider == "ollama":
+                mock_transcribe.assert_called_once_with(ANY, model=expected_model)
+
+            assert mock_transcribe.call_count == 1
 
 def test_process_single_image_invalid_file(config, test_data_dir):
     image_path = os.path.join(test_data_dir, "nonexistent.png")
-    with pytest.raises(SystemExit):  # Expect SystemExit due to handle_error
+    with pytest.raises(SystemExit):
         process_single_image(image_path, "openai", config)
 
-# Example of testing rotation
 def test_process_single_image_rotation(config, test_data_dir):
     image_path = os.path.join(test_data_dir, "sample.png")
     with patch('ocrv.llm_interface._transcribe_with_openai') as mock_transcribe:
         mock_transcribe.return_value = "Mocked OpenAI transcription"
-        # Set rotation in config
         config.image_processing_settings["rotation"] = 90
         result = process_single_image(image_path, "openai", config)
         assert result == "Mocked OpenAI transcription"
-        # You could also check if preprocess_image was called with the correct rotation
-        # This would require patching preprocess_image, which is more complex.

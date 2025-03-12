@@ -58,31 +58,29 @@ def main():
     config.image_processing_settings["rotation"] = args.rotate
     config.debug = args.debug
     input_file = args.input
+    provider = args.provider
 
     try:
         if not os.path.exists(input_file):
             handle_error(f"Input file not found: {input_file}")
 
         file_extension = os.path.splitext(input_file)[1].lower()
-
         if file_extension == ".pdf":
-            extracted_text = process_pdf(input_file, args.provider, config, args.model)
+            extracted_text = process_pdf(input_file, provider, config, args.model)
         elif file_extension.lower() in (".png", ".jpg", ".jpeg"):
             if not validate_image_file(input_file):
                 handle_error(f"Input file is not a valid image: {input_file}")
-            extracted_text = process_single_image(input_file, args.provider, config, args.model)
+            extracted_text = process_single_image(input_file, provider, config, args.model)
         else:
             handle_error(f"Unsupported file type: {file_extension}")
 
     except Exception as e:
         handle_error(f"An error occurred: {e}")
 
-
     output_filename = args.output
     if not output_filename:
-        # Use the model alias in the filename if provided, otherwise, use provider
-        model_string = args.model if args.model else args.provider
-        output_filename = f"{os.path.splitext(input_file)[0]}_{sanitize_filename(model_string)}.md"
+        model_str = args.model if args.model else provider
+        output_filename = f"{os.path.splitext(input_file)[0]}_{sanitize_filename(model_str)}.md"
 
     with open(output_filename, 'w') as f:
         f.write(extracted_text)
