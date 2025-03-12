@@ -132,11 +132,15 @@ def _transcribe_with_ollama(image_path: str, prompt: str, model: str) -> str:
             if response.lower() == 'y':
                 try:
                     logging.info(f"Pulling Ollama model: {model}")
+                    last_status = None
                     for progress in ollama.pull(model=model, stream=True):
-                        if 'progress' in progress:
-                            print(f"  {progress['status']}: {progress['progress']}%")
-                        else:
-                            print(f"  {progress['status']}")
+                        status = progress.get('status')
+                        if status != last_status:
+                            if 'progress' in progress:
+                                print(f"  {status}: {progress['progress']}%")
+                            else:
+                                print(f"  {status}")
+                            last_status = status
 
                 except Exception as pull_e:
                     handle_error(f"Error pulling Ollama model: {pull_e}", pull_e)
@@ -167,7 +171,7 @@ def _transcribe_with_ollama(image_path: str, prompt: str, model: str) -> str:
                 }
             ],
         )
-        return response["message"]["content"].strip()
+        return response["message"].get("content", "").strip()
 
     except Exception as e:
         handle_error(f"Error during Ollama transcription after model check/pull", e)
