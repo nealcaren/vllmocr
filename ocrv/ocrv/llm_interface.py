@@ -7,6 +7,7 @@ import google.generativeai as genai
 import google.api_core
 import openai
 import ollama
+import os  # Import the os module
 import requests
 
 from .config import AppConfig, get_api_key, get_default_model
