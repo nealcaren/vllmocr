@@ -17,8 +17,8 @@ def sanitize_filename(name: str) -> str:
 
 def check_image_quality(pixmap, dpi_threshold: int = 300) -> None:
     """Check if image DPI is below the threshold and print a warning."""
-    dpi_x = pixmap.rect.width * 72 / pixmap.width
-    dpi_y = pixmap.rect.height * 72 / pixmap.height
+    dpi_x = pixmap.irect.width * 72 / pixmap.width
+    dpi_y = pixmap.irect.height * 72 / pixmap.height
     dpi = min(dpi_x, dpi_y)
     if dpi < dpi_threshold:
         print(f"Warning: Image DPI is {dpi:.1f}, which is below the recommended {dpi_threshold} DPI. OCR accuracy may be reduced.")
