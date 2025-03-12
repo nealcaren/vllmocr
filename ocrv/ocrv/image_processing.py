@@ -47,9 +47,9 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
             return None  # This line won't be reached due to handle_error, but added for clarity
         
         logging.info(f"TRACE: Original image shape: {image.shape}, type: {type(image)}")
-
-    # Convert to grayscale if not already
-    if len(image.shape) == 3:
+        
+        # Convert to grayscale if not already
+        if len(image.shape) == 3:
         logging.debug("Converting to grayscale")
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         logging.debug(f"Grayscale image shape: {gray.shape}, type: {type(gray)}")
@@ -63,15 +63,15 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
     enhanced = clahe.apply(gray)
     logging.debug(f"Enhanced image shape: {enhanced.shape}, type: {type(enhanced)}")
 
-    # Apply a lighter blur to preserve details
-    logging.debug("Applying blur")
-    blurred = cv2.GaussianBlur(enhanced, (3, 3), 0)
-    logging.debug(f"Blurred image shape: {blurred.shape}, type: {type(blurred)}")
+        # Apply a lighter blur to preserve details
+        logging.debug("Applying blur")
+        blurred = cv2.GaussianBlur(enhanced, (3, 3), 0)
+        logging.debug(f"Blurred image shape: {blurred.shape}, type: {type(blurred)}")
 
-    # Denoise with lower strength to preserve character details
-    logging.debug("Denoising")
-    denoised = cv2.fastNlMeansDenoising(blurred, h=7)
-    logging.debug(f"Denoised image shape: {denoised.shape}, type: {type(denoised)}")
+        # Denoise with lower strength to preserve character details
+        logging.debug("Denoising")
+        denoised = cv2.fastNlMeansDenoising(blurred, h=7)
+        logging.debug(f"Denoised image shape: {denoised.shape}, type: {type(denoised)}")
     # Apply manual rotation if specified
     if rotation in {90, 180, 270}:
         logging.debug(f"Rotating image by {rotation} degrees")
@@ -91,11 +91,16 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
         cv2.imwrite(os.path.join(debug_dir, f"{os.path.basename(image_path)}_blurred.png"), blurred)
         cv2.imwrite(os.path.join(debug_dir, f"{os.path.basename(image_path)}_denoised.png"), denoised)
 
-    if output_path.lower().endswith(".jpg"):
-        cv2.imwrite(output_path, binary, [cv2.IMWRITE_JPEG_QUALITY, 95])
-    else:
-        cv2.imwrite(output_path, binary)
-    return output_path
+        if output_path.lower().endswith(".jpg"):
+            cv2.imwrite(output_path, binary, [cv2.IMWRITE_JPEG_QUALITY, 95])
+        else:
+            cv2.imwrite(output_path, binary)
+        return output_path
+    except Exception as e:
+        logging.error(f"TRACE: Error in preprocess_image: {str(e)}")
+        import traceback
+        logging.error(f"TRACE: Traceback: {traceback.format_exc()}")
+        raise
 
 def pdf_to_images(pdf_path: str, output_dir: str) -> List[str]:
     """Converts a PDF file into a series of images (one per page)."""
