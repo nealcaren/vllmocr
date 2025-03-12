@@ -17,6 +17,20 @@
 
 ## Installation
 
+It is recommended to install `vllm-ocr` using `uv`:
+
+```bash
+uv pip install vllm-ocr
+```
+
+If you don't have `uv` installed, you can install it with:
+```
+pipx install uv
+```
+You may need to restart your shell session for `uv` to be available.
+
+Alternatively, you can use `pip`:
+
 ```bash
 pip install vllm-ocr
 ```
@@ -115,10 +129,13 @@ To set up a development environment:
     uv venv
     uv pip install -e .[dev]
     ```
-    This installs the package in editable mode (`-e`) along with development dependencies (like `pytest`).
+
+    This installs the package in editable mode (`-e`) along with development dependencies (like `pytest` and `pytest-mock`).
 
 3.  Run tests:
+
     ```bash
+    uv pip install pytest pytest-mock  # if not already installed as dev dependencies
     pytest
     ```
 
