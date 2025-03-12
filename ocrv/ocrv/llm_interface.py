@@ -12,7 +12,7 @@ import requests
 
 from .config import AppConfig, get_api_key, get_default_model
 from .utils import handle_error
-from .prompts import DEFAULT_OCR_PROMPT  # Import the prompt
+from .prompts import get_prompt
 
 
 def _encode_image(image_path: str) -> str:
@@ -147,19 +147,29 @@ def transcribe_image(image_path: str, provider: str, config: AppConfig, model: O
 
         ValueError: If the provider is not supported or if the model is required but not provided.
     """
-    logging.info(f"TRACE: Entering transcribe_image with provider={provider}, model={model}")
-    
+    Args:
+        image_path: Path to the image.
+        provider: The LLM provider ('openai', 'anthropic', 'google', 'ollama').
+        config: The application configuration.
+        model: The specific model to use (required for Ollama, optional for others).
+        custom_prompt: Optional custom prompt to use.
+
+    Returns:
+        The transcribed text.
+
+    Raises:
+        ValueError: If the provider is not supported or if the model is required but not provided.
+    """
+    logging.info(f"TRACE: Entering transcribe_image with provider={provider}, model={model}, custom_prompt={custom_prompt}")
+
     # Get the full model name based on the alias or use the provided model
     full_model_name = None
     if model:
-        # Try to get the full model name from config
         try:
             full_model_name = config.get_default_model(provider)
-            logging.info(f"TRACE: Got full model name from config: {full_model_name}")
-        except Exception as e:
-            logging.warning(f"TRACE: Error getting model from config: {str(e)}")
-            
-        # If we couldn't get it from config, use some defaults based on model alias
+        except:
+            pass
+
         if not full_model_name:
             if model == "haiku":
                 full_model_name = "claude-3-haiku-20240307"
@@ -170,33 +180,32 @@ def transcribe_image(image_path: str, provider: str, config: AppConfig, model: O
             elif model == "gpt-4o":
                 full_model_name = "gpt-4o"
             else:
-                # Use the model name directly if it's not an alias
                 full_model_name = model
-            logging.info(f"TRACE: Using default model mapping: {full_model_name}")
     else:
-        # If no model specified, get the default for this provider
         try:
             full_model_name = config.get_default_model(provider)
-            logging.info(f"TRACE: Using default model for provider {provider}: {full_model_name}")
         except Exception as e:
             logging.error(f"TRACE: Error getting default model: {str(e)}")
             raise ValueError(f"No model specified and couldn't get default for provider {provider}")
-    
-    # Get the API key for the provider
+
     api_key = get_api_key(config, provider)
     if not api_key and provider != "ollama":
-        logging.error(f"TRACE: No API key found for provider {provider}")
         raise ValueError(f"No API key found for provider {provider}")
-    
-    logging.info(f"Using provider: {provider}, model: {full_model_name}")
+
+    prompt = get_prompt(provider, custom_prompt)
+    logging.info(f"Using provider: {provider}, model: {full_model_name}, prompt: {prompt}")
 
     if provider == "openai":
-        return _transcribe_with_openai(image_path, api_key, model=full_model_name)
+        text = _transcribe_with_openai(image_path, api_key, prompt, model=full_model_name)
+        return _post_process_openai(text)
     elif provider == "anthropic":
-        return _transcribe_with_anthropic(image_path, api_key, model=full_model_name)
+        text = _transcribe_with_anthropic(image_path, api_key, prompt, model=full_model_name)
+        return _post_process_anthropic(text)
     elif provider == "google":
-        return _transcribe_with_google(image_path, api_key, model=full_model_name)
+        text = _transcribe_with_google(image_path, api_key, prompt, model=full_model_name)
+        return _post_process_google(text)
     elif provider == "ollama":
-        return _transcribe_with_ollama(image_path, model=full_model_name)
+        text = _transcribe_with_ollama(image_path, prompt, model=full_model_name)
+        return _post_process_ollama(text)
     else:
         handle_error(f"Unsupported LLM provider: {provider}")

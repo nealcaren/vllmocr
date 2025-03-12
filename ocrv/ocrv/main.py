@@ -1,4 +1,5 @@
 import argparse
+import argparse
 import os
 import sys
 import tempfile
@@ -10,38 +11,21 @@ from .config import load_config, AppConfig
 from .utils import setup_logging, handle_error, validate_image_file
 
 
-def process_single_image(image_path: str, provider: Optional[str], config: AppConfig, model: Optional[str] = None) -> str:
+def process_single_image(image_path: str, provider: Optional[str], config: AppConfig, model: Optional[str] = None, custom_prompt: Optional[str] = None) -> str:
     """Processes a single image and returns the transcribed text."""
     import logging
-    logging.info(f"TRACE: Entering process_single_image with image_path={image_path}, provider={provider}, model={model}")
-    
+    logging.info(f"TRACE: Entering process_single_image with image_path={image_path}, provider={provider}, model={model}, custom_prompt={custom_prompt}")
+
     with tempfile.TemporaryDirectory() as temp_dir:
-        logging.info(f"TRACE: Created temp directory: {temp_dir}")
-        
         if provider is None and model:
-            logging.info(f"TRACE: Provider is None, inferring from model: {model}")
             if model in ("haiku", "sonnet", "anthropic", "claude"):
                 provider = "anthropic"
-                logging.info(f"TRACE: Inferred provider: {provider}")
             elif model in ("4o-mini", "gpt-4o"):
                 provider = "openai"
-                logging.info(f"TRACE: Inferred provider: {provider}")
-        
-        logging.info(f"TRACE: Final provider: {provider}")
-        
+
         try:
             output_format = determine_output_format(image_path, provider)
-            logging.info(f"TRACE: Determined output format: {output_format}")
-        except Exception as e:
-            logging.error(f"TRACE: Error in determine_output_format: {str(e)}")
-            import traceback
-            logging.error(f"TRACE: Traceback: {traceback.format_exc()}")
-            raise
-        
-        output_path = os.path.join(temp_dir, f"preprocessed.{output_format}")
-        logging.info(f"TRACE: Output path: {output_path}")
-        try:
-            logging.info(f"TRACE: Calling preprocess_image with image_path={image_path}, output_path={output_path}, provider={provider}")
+            output_path = os.path.join(temp_dir, f"preprocessed.{output_format}")
             preprocessed_path = preprocess_image(
                 image_path,
                 output_path,
@@ -49,11 +33,7 @@ def process_single_image(image_path: str, provider: Optional[str], config: AppCo
                 config.image_processing_settings["rotation"],
                 config.debug
             )
-            logging.info(f"TRACE: preprocess_image returned: {preprocessed_path}")
-            
-            logging.info(f"TRACE: Calling transcribe_image with preprocessed_path={preprocessed_path}, provider={provider}, model={model}")
-            result = transcribe_image(preprocessed_path, provider, config, model)
-            logging.info(f"TRACE: transcribe_image returned result of length: {len(result) if result else 0}")
+            result = transcribe_image(preprocessed_path, provider, config, model, custom_prompt)
             return result
         except Exception as e:
             logging.error(f"TRACE: Error in process_single_image: {str(e)}")
@@ -61,7 +41,7 @@ def process_single_image(image_path: str, provider: Optional[str], config: AppCo
             logging.error(f"TRACE: Traceback: {traceback.format_exc()}")
             raise
 
-def process_pdf(pdf_path: str, provider: Optional[str], config: AppConfig, model: Optional[str] = None) -> str:
+def process_pdf(pdf_path: str, provider: Optional[str], config: AppConfig, model: Optional[str] = None, custom_prompt: Optional[str] = None) -> str:
     """Processes a PDF and returns the transcribed text."""
     with tempfile.TemporaryDirectory() as temp_dir:
         if provider is None and model:
@@ -74,10 +54,10 @@ def process_pdf(pdf_path: str, provider: Optional[str], config: AppConfig, model
             image_paths = pdf_to_images(pdf_path, temp_dir)
         except ValueError as e:
             handle_error(f"Error processing PDF {pdf_path}: {e}")
-            raise  # Re-raise the exception
+            raise
         all_text = []
         for image_path in image_paths:
-            text = process_single_image(image_path, provider, config, model)
+            text = process_single_image(image_path, provider, config, model, custom_prompt)
             all_text.append(text)
         return "\n\n".join(all_text)
 
@@ -89,6 +69,7 @@ def main():
     parser.add_argument("-p", "--provider", type=str,
                         help="LLM provider ('openai', 'anthropic', 'google', 'ollama').")
     parser.add_argument("-m", "--model", type=str, help="Model alias to use (e.g., 'haiku', 'gpt-4o', 'llama3').")
+    parser.add_argument("-c", "--custom-prompt", type=str, help="Custom prompt to use for the LLM.")
     parser.add_argument("--rotate", type=int, choices=[0, 90, 180, 270], default=0,
                         help="Manually rotate image by specified degrees (0, 90, 180, or 270)")
     parser.add_argument("--debug", action="store_true", help="Save intermediate processing steps for debugging")
@@ -96,22 +77,19 @@ def main():
                         help="Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     args = parser.parse_args()
 
-    # Force debug level for troubleshooting
     setup_logging("DEBUG")
-    
+
     import logging
     logging.info("TRACE: Starting main function")
     logging.info(f"TRACE: Command line args: {args}")
-    
+
     config = load_config()
     logging.info("TRACE: Config loaded")
 
-    # Override config with command-line arguments
     config.image_processing_settings["rotation"] = args.rotate
     config.debug = args.debug
     input_file = args.input
 
-    # Infer provider from model if provider is not given
     if args.provider is None and args.model:
         if args.model in ("haiku", "sonnet", "anthropic", "claude"):
             args.provider = "anthropic"
@@ -129,18 +107,18 @@ def main():
 
         file_extension = os.path.splitext(input_file)[1].lower()
         if file_extension == ".pdf":
-            extracted_text = process_pdf(input_file, provider, config, args.model)
+            extracted_text = process_pdf(input_file, provider, config, args.model, args.custom_prompt)
         elif file_extension.lower() in (".png", ".jpg", ".jpeg"):
             if not validate_image_file(input_file):
                 handle_error(f"Input file is not a valid image: {input_file}")
-            extracted_text = process_single_image(input_file, provider, config, args.model)
+            extracted_text = process_single_image(input_file, provider, config, args.model, args.custom_prompt)
         else:
             handle_error(f"Unsupported file type: {file_extension}")
 
     except ValueError as ve:
-        handle_error(f"ValueError occurred: {ve}")  # Handle ValueError separately
+        handle_error(f"ValueError occurred: {ve}")
     except Exception as e:
-        handle_error(f"An error occurred: {e}")  # Handle other exceptions
+        handle_error(f"An error occurred: {e}")
 
     output_filename = args.output
     if not output_filename:
