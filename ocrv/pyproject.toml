@@ -3,11 +3,11 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ocrv"
+name = "vllm-ocr"
 version = "0.2.0"
 description = "OCR project using LLMs"
 readme = "README.md"
-keywords = ["ocr", "llm", "image processing"]
+keywords = ["ocr", "llm", "image processing", "vllm"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
