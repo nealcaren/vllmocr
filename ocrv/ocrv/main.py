@@ -94,8 +94,10 @@ def main():
         else:
             handle_error(f"Unsupported file type: {file_extension}")
 
+    except ValueError as ve:
+        handle_error(f"ValueError occurred: {ve}")  # Handle ValueError separately
     except Exception as e:
-        handle_error(f"An error occurred: {e}")
+        handle_error(f"An error occurred: {e}")  # Handle other exceptions
 
     output_filename = args.output
     if not output_filename:
