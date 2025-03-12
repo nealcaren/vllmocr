@@ -78,6 +78,10 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
         cv2.imwrite(output_path, binary)
     return output_path
 
+
+def pdf_to_images(pdf_path: str, output_dir: str) -> List[str]:
+    """Converts a PDF file into a series of images (one per page).
+
     Args:
         pdf_path: Path to the PDF file.
         output_dir: Directory to save the images.
