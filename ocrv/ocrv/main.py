@@ -38,7 +38,11 @@ def process_pdf(pdf_path: str, provider: Optional[str], config: AppConfig, model
             elif model in ("4o-mini", "gpt-4o"):
                 provider = "chatgpt"
 
-        image_paths = pdf_to_images(pdf_path, temp_dir)
+        try:
+            image_paths = pdf_to_images(pdf_path, temp_dir)
+        except ValueError as e:
+            handle_error(f"Error processing PDF {pdf_path}: {e}")
+            return "" # Or raise, depending on desired behavior
         all_text = []
         for image_path in image_paths:
             text = process_single_image(image_path, provider, config, model)
