@@ -147,8 +147,47 @@ def transcribe_image(image_path: str, provider: str, config: AppConfig, model: O
 
         ValueError: If the provider is not supported or if the model is required but not provided.
     """
-    provider, full_model_name = get_default_model(config, model)
+    logging.info(f"TRACE: Entering transcribe_image with provider={provider}, model={model}")
+    
+    # Get the full model name based on the alias or use the provided model
+    full_model_name = None
+    if model:
+        # Try to get the full model name from config
+        try:
+            full_model_name = config.get_default_model(provider)
+            logging.info(f"TRACE: Got full model name from config: {full_model_name}")
+        except Exception as e:
+            logging.warning(f"TRACE: Error getting model from config: {str(e)}")
+            
+        # If we couldn't get it from config, use some defaults based on model alias
+        if not full_model_name:
+            if model == "haiku":
+                full_model_name = "claude-3-haiku-20240307"
+            elif model == "sonnet":
+                full_model_name = "claude-3-sonnet-20240229"
+            elif model == "4o-mini":
+                full_model_name = "gpt-4o-mini"
+            elif model == "gpt-4o":
+                full_model_name = "gpt-4o"
+            else:
+                # Use the model name directly if it's not an alias
+                full_model_name = model
+            logging.info(f"TRACE: Using default model mapping: {full_model_name}")
+    else:
+        # If no model specified, get the default for this provider
+        try:
+            full_model_name = config.get_default_model(provider)
+            logging.info(f"TRACE: Using default model for provider {provider}: {full_model_name}")
+        except Exception as e:
+            logging.error(f"TRACE: Error getting default model: {str(e)}")
+            raise ValueError(f"No model specified and couldn't get default for provider {provider}")
+    
+    # Get the API key for the provider
     api_key = get_api_key(config, provider)
+    if not api_key and provider != "ollama":
+        logging.error(f"TRACE: No API key found for provider {provider}")
+        raise ValueError(f"No API key found for provider {provider}")
+    
     logging.info(f"Using provider: {provider}, model: {full_model_name}")
 
     if provider == "openai":
