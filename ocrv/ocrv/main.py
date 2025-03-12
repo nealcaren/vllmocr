@@ -38,7 +38,7 @@ def process_pdf(pdf_path: str, provider: Optional[str], config: AppConfig, model
             elif model in ("4o-mini", "gpt-4o"):
                 provider = "chatgpt"
 
-        image_paths = pdf_to_images(pdf_path, temp_dir, config.dpi)
+        image_paths = pdf_to_images(pdf_path, temp_dir)
         all_text = []
         for image_path in image_paths:
             text = process_single_image(image_path, provider, config, model)
@@ -53,7 +53,6 @@ def main():
     parser.add_argument("-p", "--provider", type=str,
                         help="LLM provider ('openai', 'anthropic', 'google', 'ollama').")
     parser.add_argument("-m", "--model", type=str, help="Model alias to use (e.g., 'haiku', 'gpt-4o', 'llama3').")
-    parser.add_argument("--dpi", type=int, default=300, help="DPI for PDF rendering (default: 300).")
     parser.add_argument("--rotate", type=int, choices=[0, 90, 180, 270], default=0,
                         help="Manually rotate image by specified degrees (0, 90, 180, or 270)")
     parser.add_argument("--debug", action="store_true", help="Save intermediate processing steps for debugging")
@@ -65,7 +64,6 @@ def main():
     config = load_config()
 
     # Override config with command-line arguments
-    config.dpi = args.dpi
     config.image_processing_settings["rotation"] = args.rotate
     config.debug = args.debug
     input_file = args.input
