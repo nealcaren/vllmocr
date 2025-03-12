@@ -147,19 +147,6 @@ def transcribe_image(image_path: str, provider: str, config: AppConfig, model: O
 
         ValueError: If the provider is not supported or if the model is required but not provided.
     """
-    Args:
-        image_path: Path to the image.
-        provider: The LLM provider ('openai', 'anthropic', 'google', 'ollama').
-        config: The application configuration.
-        model: The specific model to use (required for Ollama, optional for others).
-        custom_prompt: Optional custom prompt to use.
-
-    Returns:
-        The transcribed text.
-
-    Raises:
-        ValueError: If the provider is not supported or if the model is required but not provided.
-    """
     logging.info(f"TRACE: Entering transcribe_image with provider={provider}, model={model}, custom_prompt={custom_prompt}")
 
     # Get the full model name based on the alias or use the provided model
