@@ -4,7 +4,7 @@ from typing import Optional
 import re
 
 import anthropic
-import google.generativeai as genai
+from google import generativeai
 from google.generativeai import types
 import google.api_core
 import openai
