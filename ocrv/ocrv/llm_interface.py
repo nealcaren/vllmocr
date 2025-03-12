@@ -8,7 +8,6 @@ import google.api_core
 import openai
 import ollama
 import requests
-import httpx  # Import httpx
 
 from .config import AppConfig, get_api_key, get_default_model
 from .utils import handle_error
@@ -24,10 +23,7 @@ def _transcribe_with_openai(image_path: str, api_key: str, model: str = "gpt-4o"
     """Transcribes the text in the given image using OpenAI."""
     logging.info(f"Transcribing with OpenAI, model: {model}")
     try:
-        # Forcefully disable proxies by creating a custom httpx client
-        custom_client = httpx.Client(proxies={})
-
-        client = openai.OpenAI(api_key=api_key, http_client=custom_client)
+        client = openai.OpenAI(api_key=api_key)
         base64_image = _encode_image(image_path)
         response = client.chat.completions.create(
             model=model,
