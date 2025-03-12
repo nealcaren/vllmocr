@@ -77,7 +77,7 @@ def main():
         if args.model in ("haiku", "sonnet", "anththropic", "claude"):
             args.provider = "anthropic"
         elif args.model in ("4o-mini", "gpt-4o"):
-            args.provider = "chatgpt"
+            args.provider = "openai"
 
     if args.provider is None:
         parser.error("the following arguments are required: -p/--provider OR -m/--model with a known provider")
