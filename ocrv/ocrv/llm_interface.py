@@ -8,6 +8,7 @@ import google.api_core
 import openai
 import ollama
 import requests
+import httpx  # Import httpx
 
 from .config import AppConfig, get_api_key, get_default_model
 from .utils import handle_error
@@ -23,7 +24,10 @@ def _transcribe_with_openai(image_path: str, api_key: str, model: str = "gpt-4o"
     """Transcribes the text in the given image using OpenAI."""
     logging.info(f"Transcribing with OpenAI, model: {model}")
     try:
-        client = openai.OpenAI(api_key=api_key)  # Initialize without proxies (usually)
+        # Forcefully disable proxies by creating a custom httpx client
+        custom_client = httpx.Client(proxies={})
+
+        client = openai.OpenAI(api_key=api_key, http_client=custom_client)
         base64_image = _encode_image(image_path)
         response = client.chat.completions.create(
             model=model,
@@ -45,6 +49,7 @@ def _transcribe_with_openai(image_path: str, api_key: str, model: str = "gpt-4o"
         handle_error(f"OpenAI API error: {e}", e)
     except Exception as e:
         handle_error(f"Error during OpenAI transcription", e)
+
 
 def _transcribe_with_anthropic(image_path: str, api_key: str, model: str = "claude-3-opus-20240229") -> str:
     """Transcribes the text in the given image using Anthropic."""
