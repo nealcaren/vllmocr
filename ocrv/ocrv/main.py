@@ -17,7 +17,7 @@ def process_single_image(image_path: str, provider: Optional[str], config: AppCo
             if model in ("haiku", "sonnet", "anththropic", "claude"):
                 provider = "anthropic"
             elif model in ("4o-mini", "gpt-4o"):
-                provider = "chatgpt"
+                provider = "openai"
         output_format = determine_output_format(image_path, provider)
         output_path = os.path.join(temp_dir, f"preprocessed.{output_format}")
         preprocessed_path = preprocess_image(
