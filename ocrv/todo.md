@@ -41,11 +41,11 @@
     - Improve the user experience of the CLI with better argument parsing, help messages, and progress indicators.
     - Consider adding options for outputting results in different formats (e.g., JSON, plain text).
 
-- **Extensibility:**
-    - Design a plugin architecture to allow users to easily add support for new LLM providers or image processing techniques.
-
 - **Documentation:**
     - Create comprehensive documentation, including usage examples, API reference, and troubleshooting guides.
+
+- **Extensibility:**
+    - Design a plugin architecture to allow users to easily add support for new LLM providers or image processing techniques.
 
 - **Support other languages:**
     -  Allow the user to specify a language, and pass that to the LLM.
