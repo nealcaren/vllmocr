@@ -216,22 +216,16 @@ def transcribe_image(image_path: str, provider: str, config: AppConfig, model: O
     # Get the full model name based on the alias or use the provided model
     full_model_name = None
     if model:
-        try:
-            full_model_name = config.get_default_model(provider)
-        except:
-            pass
-
-        if not full_model_name:
-            if model == "haiku":
-                full_model_name = "claude-3-haiku-20240307"
-            elif model == "sonnet":
-                full_model_name = "claude-3-sonnet-20240229"
-            elif model == "4o-mini":
-                full_model_name = "gpt-4o-mini"
-            elif model == "gpt-4o":
-                full_model_name = "gpt-4o"
-            else:
-                full_model_name = model
+        # Use the provided model directly, only trying to get from config if no model is provided
+        full_model_name = model
+        if model == "haiku":
+            full_model_name = "claude-3-haiku-20240307"
+        elif model == "sonnet":
+            full_model_name = "claude-3-sonnet-20240229"
+        elif model == "4o-mini":
+            full_model_name = "gpt-4o-mini"
+        elif model == "gpt-4o":
+            full_model_name = "gpt-4o"
     else:
         try:
             full_model_name = config.get_default_model(provider)
