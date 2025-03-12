@@ -34,7 +34,7 @@ def _transcribe_with_openai(image_path: str, api_key: str, model: str = "gpt-4o"
                     "content": [
                         {
                             "type": "text",
-                            "text": f"{DEFAULT_OCR_PROMPT}",
+                            "text": prompt,
                         },
                         {
                             "type": "image_url",
@@ -44,25 +44,26 @@ def _transcribe_with_openai(image_path: str, api_key: str, model: str = "gpt-4o"
                         }
                     ]
                 }
-            ]
+            ],
+            stream=False,
         )
         return response.choices[0].message.content.strip()
+
     except openai.OpenAIError as e:
         handle_error(f"OpenAI API error: {e}", e)
     except Exception as e:
         handle_error(f"Error during OpenAI transcription", e)
 
 
-def _transcribe_with_anthropic(image_path: str, api_key: str, model: str = "claude-3-haiku-20240307") -> str:
+def _transcribe_with_anthropic(image_path: str, api_key: str, prompt: str, model: str = "claude-3-haiku-20240307") -> str:
     """Transcribes the text in the given image using Anthropic."""
     logging.info(f"Transcribing with Anthropic, model: {model}")
     try:
         client = anthropic.Anthropic(api_key=api_key)
         encoded_image = _encode_image(image_path)
-        # Determine the correct media type based on the file extension.
         image_type = os.path.splitext(image_path)[1][1:].lower()
         if image_type == "jpg":
-            image_type = "jpeg"  # Correct common inconsistency
+            image_type = "jpeg"
         media_type = f"image/{image_type}"
 
         response = client.messages.create(
@@ -72,7 +73,7 @@ def _transcribe_with_anthropic(image_path: str, api_key: str, model: str = "clau
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": DEFAULT_OCR_PROMPT},
+                        {"type": "text", "text": prompt},
                         {
                             "type": "image",
                             "source": {
@@ -86,6 +87,7 @@ def _transcribe_with_anthropic(image_path: str, api_key: str, model: str = "clau
             ],
         ).content[0].text
         return response
+
     except anthropic.APIConnectionError as e:
         handle_error(f"Anthropic API connection error: {e}", e)
     except anthropic.RateLimitError as e:
@@ -96,23 +98,21 @@ def _transcribe_with_anthropic(image_path: str, api_key: str, model: str = "clau
         handle_error(f"Error during Anthropic transcription", e)
 
 
-def _transcribe_with_google(image_path: str, api_key: str, model: str = "gemini-1.5-pro-002") -> str:
+def _transcribe_with_google(image_path: str, api_key: str, prompt: str, model: str = "gemini-1.5-pro-002") -> str:
     """Transcribes the text in the given image using Google Gemini."""
     logging.info(f"Transcribing with Google, model: {model}")
     try:
         genai.configure(api_key=api_key)
         model_instance = genai.GenerativeModel(model)
         image = genai.Part(data=open(image_path, "rb").read(), mime_type="image/png")
-        response = model_instance.generate_content([DEFAULT_OCR_PROMPT, image])
+        response = model_instance.generate_content([prompt, image])
         return response.text
     except google.api_core.exceptions.GoogleAPIError as e:
         handle_error(f"Google API error: {e}", e)
-    except google.api_core.exceptions.RetryError as e:
-        handle_error(f"Google API retry error: {e}", e)
     except Exception as e:
         handle_error(f"Error during Google Gemini transcription", e)
 
-def _transcribe_with_ollama(image_path: str, model: str) -> str:
+def _transcribe_with_ollama(image_path: str, prompt: str, model: str) -> str:
     """Transcribes the text in the given image using Ollama."""
     logging.info(f"Transcribing with Ollama, model: {model}")
     try:
@@ -122,7 +122,7 @@ def _transcribe_with_ollama(image_path: str, model: str) -> str:
                 {
                     "role": "user",
                     "num_ctx": 4096,
-                    "content": DEFAULT_OCR_PROMPT,
+                    "content": prompt,
                     "images": [image_path],
                 }
             ],
