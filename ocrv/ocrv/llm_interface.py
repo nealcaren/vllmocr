@@ -12,7 +12,6 @@ import requests
 from .config import AppConfig, get_api_key, get_default_model
 from .utils import handle_error
 
-ocr_prompt = "Convert scanned text to properly formatted markdown. Return ONLY the complete text of the page."
 
 def _encode_image(image_path: str) -> str:
     """Encodes the image at the given path to base64."""
