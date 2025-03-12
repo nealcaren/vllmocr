@@ -20,7 +20,7 @@ def _encode_image(image_path: str) -> str:
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode("utf-8")
 
-def _transcribe_with_openai(image_path: str, api_key: str, model: str = "gpt-4o") -> str:
+def _transcribe_with_openai(image_path: str, api_key: str, prompt: str, model: str = "gpt-4o") -> str:
     """Transcribes the text in the given image using OpenAI."""
     logging.info(f"Transcribing with OpenAI, model: {model}")
     try:
@@ -133,18 +133,20 @@ def _transcribe_with_ollama(image_path: str, prompt: str, model: str) -> str:
     except Exception as e:
         handle_error(f"Error during Ollama transcription", e)
 
-def transcribe_image(image_path: str, provider: str, config: AppConfig, model: Optional[str] = None) -> str:
+def transcribe_image(image_path: str, provider: str, config: AppConfig, model: Optional[str] = None, custom_prompt: Optional[str] = None) -> str:
     """Transcribes text from an image using the specified LLM provider and model.
 
     Args:
         image_path: Path to the image.
         provider: The LLM provider ('openai', 'anthropic', 'google', 'ollama').
         config: The application configuration.
-        model: The specific model to use (required for Ollama, optional for others).
+        model: The specific model to use (optional).
+        custom_prompt: Optional custom prompt to use.
 
     Returns:
         The transcribed text.
 
+    Raises:
         ValueError: If the provider is not supported or if the model is required but not provided.
     """
     logging.info(f"TRACE: Entering transcribe_image with provider={provider}, model={model}, custom_prompt={custom_prompt}")
