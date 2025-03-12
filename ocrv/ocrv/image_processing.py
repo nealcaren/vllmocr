@@ -95,7 +95,7 @@ def pdf_to_images(pdf_path: str, output_dir: str, dpi: int = 300) -> List[str]:
         doc = fitz.open(pdf_path)
         image_paths = []
         for i, page in enumerate(doc):
-            pix = page.get_pixmap(dpi=dpi)
+            pix = page.get_pixmap(dpi=dpi)[0]  # Get the Pixmap from the returned tuple
             check_image_quality(pix)
             temp_image_path = os.path.join(output_dir, f"page_{i+1}.png")
             pix.save(temp_image_path)
