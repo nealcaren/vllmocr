@@ -123,6 +123,39 @@ def _transcribe_with_ollama(image_path: str, prompt: str, model: str) -> str:
     """Transcribes the text in the given image using Ollama."""
     logging.info(f"Transcribing with Ollama, model: {model}")
     try:
+        # Check if the model is available
+        ollama.show(model=model)
+    except ollama.ResponseError as e:
+        if "model" in str(e) and "not found" in str(e):
+            # Ask the user if they want to pull the model
+            response = input(f"Model '{model}' not found. Do you want to pull it? (y/N): ")
+            if response.lower() == 'y':
+                try:
+                    logging.info(f"Pulling Ollama model: {model}")
+                    for progress in ollama.pull(model=model, stream=True):
+                        if 'progress' in progress:
+                            print(f"  {progress['status']}: {progress['progress']}%")
+                        else:
+                            print(f"  {progress['status']}")
+
+                except Exception as pull_e:
+                    handle_error(f"Error pulling Ollama model: {pull_e}", pull_e)
+                    return ""  # Or raise, depending on desired behavior
+            else:
+                print(f"Skipping transcription due to missing model: {model}")
+                return ""  # Or raise, depending on desired behavior
+        else:
+            # Handle other Ollama errors
+            handle_error(f"Ollama API error: {e}", e)
+            return ""
+    except requests.exceptions.RequestException as e:
+        handle_error(f"Ollama API request error: {e}", e)
+        return ""
+    except Exception as e:
+        handle_error(f"Error during Ollama transcription", e)
+        return ""
+
+    try:
         response = ollama.chat(
             model=model,
             messages=[
@@ -135,33 +168,33 @@ def _transcribe_with_ollama(image_path: str, prompt: str, model: str) -> str:
             ],
         )
         return response["message"]["content"].strip()
-    except requests.exceptions.RequestException as e:
-        handle_error(f"Ollama API request error: {e}", e)
+
     except Exception as e:
-        handle_error(f"Error during Ollama transcription", e)
+        handle_error(f"Error during Ollama transcription after model check/pull", e)
+        return ""
+
 
 def _post_process_openai(text: str) -> str:
     """Applies post-processing to OpenAI output.
         Extract the text between ```md and ``` delimiters.
     If the delimiters aren't present, return the entire text.
-    
+
     Args:
         text (str): The input text that may contain markdown text within delimiters
-        
+
     Returns:
         str: The extracted markdown text or the original text if delimiters aren't found
     """
     # Look for text between ```md and ``` delimiters
     markdown_pattern = re.compile(r'```md\s*(.*?)\s*```', re.DOTALL)
     match = markdown_pattern.search(text)
-    
+
     if match:
         # Return just the content within the delimiters
         return match.group(1).strip()
     else:
         # If delimiters aren't found, return the original text
         return text.strip()
-    
 
 def _post_process_anthropic(text: str) -> str:
     """
