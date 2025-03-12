@@ -52,7 +52,7 @@ def _transcribe_with_openai(image_path: str, api_key: str, model: str = "gpt-4o"
         handle_error(f"Error during OpenAI transcription", e)
 
 
-def _transcribe_with_anthropic(image_path: str, api_key: str, model: str = "claude-3-opus-20240229") -> str:
+def _transcribe_with_anthropic(image_path: str, api_key: str, model: str = "claude-3-haiku-20240307") -> str:
     """Transcribes the text in the given image using Anthropic."""
     logging.info(f"Transcribing with Anthropic, model: {model}")
     try:
@@ -148,7 +148,7 @@ def transcribe_image(image_path: str, provider: str, config: AppConfig, model: O
         openai_model = model if model else "gpt-4o"
         return _transcribe_with_openai(image_path, api_key, model=openai_model)
     elif provider == "anthropic":
-        anthropic_model = model if model else "claude-3-opus-20240229"
+        anthropic_model = model if model else "claude-3-haiku-20240307"
         return _transcribe_with_anthropic(image_path, api_key, model=anthropic_model)
     elif provider == "google":
         google_model = model if model else "gemini-1.5-pro-002"

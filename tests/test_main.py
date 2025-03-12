@@ -19,7 +19,7 @@ def test_data_dir():
 
 @pytest.mark.parametrize("provider, model", [
     ("openai", "gpt-4o"),
-    ("anthropic", "claude-3-opus-20240229"),
+    ("anthropic", "claude-3-haiku-20240307"),
     ("google", "gemini-1.5-pro-002"),
     ("ollama", "llama3.2-vision"),
     ("ollama", "minicpm-v"),
@@ -48,7 +48,7 @@ def test_process_single_image(config, test_data_dir, provider, model):
 
 @pytest.mark.parametrize("provider, model", [
     ("openai", "gpt-4o"),
-    ("anthropic", "claude-3-opus-20240229"),
+    ("anthropic", "claude-3-haiku-20240307"),
     ("google", "gemini-1.5-pro-002"),
     ("ollama", "llama3.2-vision"),
     ("ollama", "minicpm-v"),
