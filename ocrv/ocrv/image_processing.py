@@ -50,37 +50,37 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
         
         # Convert to grayscale if not already
         if len(image.shape) == 3:
-            logging.debug("Converting to grayscale")
+            if debug: logging.debug("Converting to grayscale")
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            logging.debug(f"Grayscale image shape: {gray.shape}, type: {type(gray)}")
+            if debug: logging.debug(f"Grayscale image shape: {gray.shape}, type: {type(gray)}")
         else:
             gray = image.copy()
-            logging.debug(f"Image already grayscale. Shape: {gray.shape}, type: {type(gray)}")
+            if debug: logging.debug(f"Image already grayscale. Shape: {gray.shape}, type: {type(gray)}")
 
         # Enhance contrast
-        logging.debug("Enhancing contrast")
+        if debug: logging.debug("Enhancing contrast")
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
         enhanced = clahe.apply(gray)
-        logging.debug(f"Enhanced image shape: {enhanced.shape}, type: {type(enhanced)}")
+        if debug: logging.debug(f"Enhanced image shape: {enhanced.shape}, type: {type(enhanced)}")
 
         # Apply a lighter blur to preserve details
-        logging.debug("Applying blur")
+        if debug: logging.debug("Applying blur")
         blurred = cv2.GaussianBlur(enhanced, (3, 3), 0)
-        logging.debug(f"Blurred image shape: {blurred.shape}, type: {type(blurred)}")
+        if debug: logging.debug(f"Blurred image shape: {blurred.shape}, type: {type(blurred)}")
 
         # Denoise with lower strength to preserve character details
-        logging.debug("Denoising")
+        if debug: logging.debug("Denoising")
         denoised = cv2.fastNlMeansDenoising(blurred, h=7)
-        logging.debug(f"Denoised image shape: {denoised.shape}, type: {type(denoised)}")
+        if debug: logging.debug(f"Denoised image shape: {denoised.shape}, type: {type(denoised)}")
         # Apply manual rotation if specified
         if rotation in {90, 180, 270}:
-            logging.debug(f"Rotating image by {rotation} degrees")
+            if debug: logging.debug(f"Rotating image by {rotation} degrees")
             denoised = cv2.rotate(denoised, {90: cv2.ROTATE_90_CLOCKWISE, 180: cv2.ROTATE_180, 270: cv2.ROTATE_90_COUNTERCLOCKWISE}[rotation])
-            logging.debug(f"Rotated image shape: {denoised.shape}, type: {type(denoised)}")
+            if debug: logging.debug(f"Rotated image shape: {denoised.shape}, type: {type(denoised)}")
 
-        logging.debug("Applying adaptive thresholding")
+        if debug: logging.debug("Applying adaptive thresholding")
         binary = cv2.adaptiveThreshold(denoised, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-        logging.debug(f"Binary image shape: {binary.shape}, type: {type(binary)}")
+        if debug: logging.debug(f"Binary image shape: {binary.shape}, type: {type(binary)}")
 
         # Save intermediate results if debug is enabled
         if debug:
