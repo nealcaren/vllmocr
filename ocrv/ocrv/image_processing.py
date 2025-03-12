@@ -30,9 +30,9 @@ def determine_output_format(image_path: str, provider: str) -> str:
     else:
         image_type = imghdr.what(image_path)
         if image_type:
-            return image_type
+            return "." + image_type
         else:
-            return "png"
+            return ".png"
 
 def preprocess_image(image_path: str, output_path: str, provider: str, rotation: int = 0, debug: bool = False) -> str:
     """Preprocess image to enhance OCR accuracy."""
