@@ -78,37 +78,37 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
         cv2.imwrite(output_path, binary)
     return output_path
 
+import fitz  # PyMuPDF
+import os
+import logging
+from typing import List
 
 def pdf_to_images(pdf_path: str, output_dir: str) -> List[str]:
-    """Converts a PDF file into a series of images (one per page).
-
-    Args:
-        pdf_path: Path to the PDF file.
-        output_dir: Directory to save the images.
-
-    Returns:
-        A list of paths to the generated images.
-    """
+    """Converts a PDF file into a series of images (one per page)."""
     logging.info(f"Converting PDF to images: {pdf_path}")
 
     try:
         doc = fitz.open(pdf_path)
         image_paths = []
 
+        if len(doc) == 0:
+            raise ValueError("PDF has no pages.")
+
         for i, page in enumerate(doc):
-            pix = page.get_pixmap()  # Get the Pixmap
-            print(f"Type of pix: {type(pix)}")  # Debug print
-            print(f"Contents of pix: {pix}")  # Debug print
             temp_image_path = os.path.join(output_dir, f"page_{i+1}.png")
             try:
-                pix.save(temp_image_path)
+                page.get_pixmap().save(temp_image_path)  # Directly save the image
+                image_paths.append(temp_image_path)
             except Exception as e:
-                logging.error(f"Error saving image: {e}")
-                # Instead of returning [], re-raise the exception to stop execution
-                raise
-            image_paths.append(temp_image_path)
+                logging.error(f"Error saving image for page {i+1}: {e}")
+                continue  # Skip problematic pages
+
+        if not image_paths:
+            raise ValueError("No images were generated from the PDF.")
+
         return image_paths
 
     except Exception as e:
         logging.error(f"Error during PDF to image conversion: {e} with file: {pdf_path}")
         return []
+
