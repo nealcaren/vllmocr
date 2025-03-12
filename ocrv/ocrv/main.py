@@ -10,9 +10,14 @@ from .config import load_config, AppConfig
 from .utils import setup_logging, handle_error, validate_image_file
 
 
-def process_single_image(image_path: str, provider: str, config: AppConfig, model: Optional[str] = None) -> str:
+def process_single_image(image_path: str, provider: Optional[str], config: AppConfig, model: Optional[str] = None) -> str:
     """Processes a single image and returns the transcribed text."""
     with tempfile.TemporaryDirectory() as temp_dir:
+        if provider is None and model:
+            if model in ("haiku", "sonnet", "anththropic", "claude"):
+                provider = "anthropic"
+            elif model in ("4o-mini", "gpt-4o"):
+                provider = "chatgpt"
         output_format = determine_output_format(image_path, provider)
         output_path = os.path.join(temp_dir, f"preprocessed.{output_format}")
         preprocessed_path = preprocess_image(
@@ -24,9 +29,15 @@ def process_single_image(image_path: str, provider: str, config: AppConfig, mode
         )
         return transcribe_image(preprocessed_path, provider, config, model)
 
-def process_pdf(pdf_path: str, provider: str, config: AppConfig, model: Optional[str] = None) -> str:
+def process_pdf(pdf_path: str, provider: Optional[str], config: AppConfig, model: Optional[str] = None) -> str:
     """Processes a PDF and returns the transcribed text."""
     with tempfile.TemporaryDirectory() as temp_dir:
+        if provider is None and model:
+            if model in ("haiku", "sonnet", "anththropic", "claude"):
+                provider = "anthropic"
+            elif model in ("4o-mini", "gpt-4o"):
+                provider = "chatgpt"
+
         image_paths = pdf_to_images(pdf_path, temp_dir, config.dpi)
         all_text = []
         for image_path in image_paths:
@@ -39,7 +50,7 @@ def main():
     parser = argparse.ArgumentParser(description="OCR processing for PDFs and images.")
     parser.add_argument("-i", "--input", type=str, required=True, help="Input file (PDF or image).")
     parser.add_argument("-o", "--output", type=str, help="Output file name (default: auto-generated).")
-    parser.add_argument("-p", "--provider", type=str, required=True,
+    parser.add_argument("-p", "--provider", type=str,
                         help="LLM provider ('openai', 'anthropic', 'google', 'ollama').")
     parser.add_argument("-m", "--model", type=str, help="Model alias to use (e.g., 'haiku', 'gpt-4o', 'llama3').")
     parser.add_argument("--dpi", type=int, default=300, help="DPI for PDF rendering (default: 300).")
@@ -58,6 +69,17 @@ def main():
     config.image_processing_settings["rotation"] = args.rotate
     config.debug = args.debug
     input_file = args.input
+
+    # Infer provider from model if provider is not given
+    if args.provider is None and args.model:
+        if args.model in ("haiku", "sonnet", "anththropic", "claude"):
+            args.provider = "anthropic"
+        elif args.model in ("4o-mini", "gpt-4o"):
+            args.provider = "chatgpt"
+
+    if args.provider is None:
+        parser.error("the following arguments are required: -p/--provider OR -m/--model with a known provider")
+
     provider = args.provider
 
     try:
