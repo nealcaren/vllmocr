@@ -6,8 +6,6 @@ import re
 import anthropic
 from google import genai
 from google.genai import types
-import google.api_core
-import google.generativeai as genai
 import openai
 import ollama
 import os

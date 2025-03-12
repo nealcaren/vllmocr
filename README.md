@@ -1,8 +1,8 @@
-# vllm-ocr
+# vllmocr
 
-[![PyPI version](https://badge.fury.io/py/vllm-ocr.svg)](https://badge.fury.io/py/vllm-ocr)
+[![PyPI version](https://badge.fury.io/py/vllmocr.svg)](https://badge.fury.io/py/vllmocr)
 
-`vllm-ocr` is a command-line tool that performs Optical Character Recognition (OCR) on images and PDFs using Large Language Models (LLMs). It supports multiple LLM providers, including OpenAI, Anthropic, Google, and local models via Ollama.
+`vllmocr` is a command-line tool that performs Optical Character Recognition (OCR) on images and PDFs using Large Language Models (LLMs). It supports multiple LLM providers, including OpenAI, Anthropic, Google, and local models via Ollama.
 
 ## Features
 
@@ -17,10 +17,10 @@
 
 ## Installation
 
-It is recommended to install `vllm-ocr` using `uv`:
+It is recommended to install `vllmocr` using `uv`:
 
 ```bash
-uv pip install vllm-ocr
+uv pip install vllmocr
 ```
 
 If you don't have `uv` installed, you can install it with:
@@ -32,17 +32,17 @@ You may need to restart your shell session for `uv` to be available.
 Alternatively, you can use `pip`:
 
 ```bash
-pip install vllm-ocr
+pip install vllmocr
 ```
 
 ## Usage
 
-The `vllm-ocr` command-line tool has two main subcommands: `image` and `pdf`.
+The `vllmocr` command-line tool has two main subcommands: `image` and `pdf`.
 
 **1.  Process a Single Image:**
 
 ```bash
-vllm-ocr image <image_path> [options]
+vllmocr image <image_path> [options]
 ```
 
 *   `<image_path>`:  The path to the image file (PNG, JPG, JPEG).
@@ -57,13 +57,13 @@ vllm-ocr image <image_path> [options]
 **Example:**
 
 ```bash
-vllm-ocr image my_image.jpg --provider anthropic --model haiku
+vllmocr image my_image.jpg --provider anthropic --model haiku
 ```
 
 **2. Process a PDF:**
 
 ```bash
-vllm-ocr pdf <pdf_path> [options]
+vllmocr pdf <pdf_path> [options]
 ```
 
 *   `<pdf_path>`: The path to the PDF file.
@@ -73,17 +73,17 @@ vllm-ocr pdf <pdf_path> [options]
 **Example:**
 
 ```bash
-vllm-ocr pdf my_document.pdf --provider openai --model gpt-4o
+vllmocr pdf my_document.pdf --provider openai --model gpt-4o
 ```
 
 ## Configuration
 
-`vllm-ocr` can be configured using a TOML file or environment variables.  The configuration file is searched for in the following locations (in order of precedence):
+`vllmocr` can be configured using a TOML file or environment variables.  The configuration file is searched for in the following locations (in order of precedence):
 
 1.  A path specified with the `--config` command-line option.
 2.  `./config.toml` (current working directory)
-3.  `~/.config/vllm-ocr/config.toml` (user's home directory)
-4.  `/etc/vllm-ocr/config.toml` (system-wide)
+3.  `~/.config/vllmocr/config.toml` (user's home directory)
+4.  `/etc/vllmocr/config.toml` (system-wide)
 
 **config.toml (Example):**
 
@@ -119,8 +119,8 @@ To set up a development environment:
 1.  Clone the repository:
 
     ```bash
-    git clone https://github.com/<your-username>/vllm-ocr.git
-    cd vllm-ocr
+    git clone https://github.com/<your-username>/vllmocr.git
+    cd vllmocr
     ```
 
 2.  Create and activate a virtual environment (using `uv`):

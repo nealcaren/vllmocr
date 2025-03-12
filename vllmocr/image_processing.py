@@ -5,7 +5,7 @@ import tempfile
 from typing import List, Optional
 
 import cv2
-import fitz  # PyMuPDF
+import pymupdf as fitz  # PyMuPDF
 import imghdr
 
 from .utils import handle_error

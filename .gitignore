@@ -4,3 +4,7 @@
 /ocrv/ocrv/__pycache__
 /tests/__pycache__
 /tests/data/debug_outputs
+/vllmocr/__pycache__
+/vllmocr.egg-info
+/build
+/dist

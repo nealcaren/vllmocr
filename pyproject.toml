@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "vllm-ocr"
-version = "0.3.0"
+name = "vllmocr"
+version = "0.3.6"
 description = "OCR project using LLMs"
 readme = "README.md"
 keywords = ["ocr", "llm", "image processing", "vllm"]
@@ -19,14 +19,14 @@ classifiers = [
  "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
+"opencv-python",
+"anthropic",
  "pytest",
  "pytest-mock",
  "openai",
- "anthropic",
- "google-generativeai",
+ "google-genai",
  "ollama",
  "requests",
- "fitz", # This is PyMuPDF
  "PyMuPDF",
  "opencv-python-headless",
  "python-dotenv",
@@ -34,7 +34,7 @@ dependencies = [
 ]
 
 [project.scripts]
-vllm-ocr = "vllm_ocr.main:main"
+vllmocr = "vllmocr.main:main"
 
 [project.optional-dependencies]
 dev = [
