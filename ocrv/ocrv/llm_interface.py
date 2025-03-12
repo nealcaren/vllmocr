@@ -11,6 +11,7 @@ import requests
 
 from .config import AppConfig, get_api_key, get_default_model
 from .utils import handle_error
+from .prompts import DEFAULT_OCR_PROMPT  # Import the prompt
 
 
 def _encode_image(image_path: str) -> str:
@@ -59,7 +60,7 @@ def _transcribe_with_anthropic(image_path: str, api_key: str, model: str = "clau
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": ocr_prompt},
+                        {"type": "text", "text": DEFAULT_OCR_PROMPT},
                         {
                             "type": "image",
                             "source": {
@@ -82,6 +83,7 @@ def _transcribe_with_anthropic(image_path: str, api_key: str, model: str = "clau
     except Exception as e:
         handle_error(f"Error during Anthropic transcription", e)
 
+
 def _transcribe_with_google(image_path: str, api_key: str, model: str = "gemini-1.5-pro-002") -> str:
     """Transcribes the text in the given image using Google Gemini."""
     logging.info(f"Transcribing with Google, model: {model}")
@@ -89,7 +91,7 @@ def _transcribe_with_google(image_path: str, api_key: str, model: str = "gemini-
         genai.configure(api_key=api_key)
         model_instance = genai.GenerativeModel(model)
         image = genai.Part(data=open(image_path, "rb").read(), mime_type="image/png")
-        response = model_instance.generate_content([ocr_prompt, image])
+        response = model_instance.generate_content([DEFAULT_OCR_PROMPT, image])
         return response.text
     except google.api_core.exceptions.GoogleAPIError as e:
         handle_error(f"Google API error: {e}", e)
@@ -108,7 +110,7 @@ def _transcribe_with_ollama(image_path: str, model: str) -> str:
                 {
                     "role": "user",
                     "num_ctx": 4096,
-                    "content": ocr_prompt,
+                    "content": DEFAULT_OCR_PROMPT,
                     "images": [image_path],
                 }
             ],
