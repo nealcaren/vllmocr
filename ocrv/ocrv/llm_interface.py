@@ -8,6 +8,7 @@ from google import generativeai
 from google.generativeai import types
 import google.api_core
 import openai
+import PIL.Image
 import ollama
 import os
 import requests
@@ -112,34 +113,13 @@ def _transcribe_with_google(image_path: str, api_key: str, prompt: str, model: s
         # Extract filename from path for the upload
         filename = os.path.basename(image_path)
 
-        # Upload the file
-        uploaded_file = client.files.upload(file=image_path)
-
-
-        contents = [
-            types.Content(
-                role="user",
-                parts=[
-                    types.Part.from_uri(
-                        file_uri=uploaded_file.uri,
-                        mime_type=uploaded_file.mime_type,
-                    ),
-                    types.Part.from_text(text=prompt),
-                ],
-            ),
-        ]
-
-        generate_content_config = types.GenerateContentConfig(
-            max_output_tokens=4096, # Set a reasonable max token limit
-            # Add other config options if needed, like temperature
-        )
-
+        image = PIL.Image.open(image_path)
 
         response = client.models.generate_content(
             model=model,
-            contents=contents,
-            config=generate_content_config,
+            contents=[prompt, image]
         )
+
         return response.text
 
     except google.api_core.exceptions.GoogleAPIError as e:
