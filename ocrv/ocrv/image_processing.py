@@ -16,7 +16,10 @@ def sanitize_filename(name: str) -> str:
     return re.sub(r"[^\w\-\.]+", "_", name)
 
 def check_image_quality(pixmap, dpi_threshold: int = 300) -> None:
+    
     """Check if image DPI is below the threshold and print a warning."""
+    print(f'Pixmap contents: {pixmap}')
+    
     if isinstance(pixmap, fitz.Pixmap):
         dpi_x = pixmap.irect.width * 72 / pixmap.width
         dpi_y = pixmap.irect.height * 72 / pixmap.height
@@ -101,6 +104,7 @@ def pdf_to_images(pdf_path: str, output_dir: str, dpi: int = 300) -> List[str]:
         for i, page in enumerate(doc):
             pix = page.get_pixmap(dpi=dpi)  # Get the Pixmap
             print(f"Type of pix: {type(pix)}")  # Debug print
+            print(f"Contents of pix: {pix}")  # Debug print
             if isinstance(pix, tuple):
                 pix = pix[0]
             check_image_quality(pix)
