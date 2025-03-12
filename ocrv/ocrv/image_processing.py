@@ -5,13 +5,11 @@ import tempfile
 from typing import List, Optional
 
 import cv2
-import fitz  # PyMuPDF
 import logging
 import os
 import re
 import tempfile
 from typing import List, Optional
-from PIL import Image
 
 import cv2
 import fitz  # PyMuPDF
@@ -94,16 +92,16 @@ def preprocess_image(image_path: str, output_path: str, provider: str, rotation:
         image_paths = []
 
         for i, page in enumerate(doc):
-            pix = page.get_pixmap()  # No scaling, default resolution
-
-            # Save the image
+            pix = page.get_pixmap()  # Get the Pixmap
+            print(f"Type of pix: {type(pix)}")  # Debug print
+            print(f"Contents of pix: {pix}")  # Debug print
+            if isinstance(pix, tuple):
+                pix = pix[0]
             temp_image_path = os.path.join(output_dir, f"page_{i+1}.png")
-            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-            img.save(temp_image_path, "PNG")
+            pix.save(temp_image_path)
             image_paths.append(temp_image_path)
-
         return image_paths
 
     except Exception as e:
-        logging.error(f"Error during PDF to image conversion: {pdf_path} - {e}")
+        logging.error(f"Error during PDF to image conversion: {pdf_path}")
         return []
