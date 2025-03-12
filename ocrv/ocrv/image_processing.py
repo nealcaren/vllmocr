@@ -100,10 +100,15 @@ def pdf_to_images(pdf_path: str, output_dir: str) -> List[str]:
             print(f"Type of pix: {type(pix)}")  # Debug print
             print(f"Contents of pix: {pix}")  # Debug print
             temp_image_path = os.path.join(output_dir, f"page_{i+1}.png")
-            pix.save(temp_image_path)
+            try:
+                pix.save(temp_image_path)
+            except Exception as e:
+                logging.error(f"Error saving image: {e}")
+                # Instead of returning [], re-raise the exception to stop execution
+                raise
             image_paths.append(temp_image_path)
         return image_paths
 
     except Exception as e:
-        logging.error(f"Error during PDF to image conversion: {pdf_path}")
+        logging.error(f"Error during PDF to image conversion: {e} with file: {pdf_path}")
         return []
