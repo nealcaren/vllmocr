@@ -7,12 +7,13 @@
     - Add retries with exponential backoff for API calls to handle transient network issues or rate limiting.
 
 - **Configuration:**
-    - Allow overriding default model choices per provider via command-line arguments.
     - Consider supporting environment variables for API keys in addition to the configuration file.
     - Validate configuration file entries on load.
+    *(Note: Model aliases are now supported via the -m/--model argument.)*
 
 - **Image Processing:**
     - Explore more advanced image preprocessing techniques (e.g., noise reduction, contrast enhancement) to improve OCR accuracy.  Offer these as configurable options.
+    *(Note: Improved image preprocessing has been implemented with contrast enhancement, blurring, denoising, and adaptive thresholding.)*
     - Investigate handling different image orientations automatically, rather than requiring manual rotation specification.
     - Add support for more image formats.
 
@@ -33,6 +34,8 @@
 - **PDF Processing:**
     - Add options for handling multi-page PDFs, such as specifying page ranges or extracting text from all pages.
     - Explore alternative PDF parsing libraries for improved performance or robustness.
+    *(Note: PDF processing now extracts original images when a page contains only a single image.)*
+    *(Note: Added handling for ValueError when processing PDFs.)*
 
 - **Command-Line Interface:**
     - Improve the user experience of the CLI with better argument parsing, help messages, and progress indicators.
