@@ -18,21 +18,35 @@ def sanitize_filename(name: str) -> str:
 
 def determine_output_format(image_path: str, provider: str) -> str:
     """Determines the correct output format based on provider and input image type."""
+    logging.info(f"TRACE: Entering determine_output_format with image_path={image_path}, provider={provider}")
+    
+    if provider is None:
+        logging.error("TRACE: Provider is None in determine_output_format")
+        provider = "default"  # Set a default to avoid errors
+    
     if provider == "openai":
+        logging.info("TRACE: Using jpg format for OpenAI")
         return "jpg"  # OpenAI prefers JPEG
     else:
-        # Default to png for safety
-        return "png"
+        logging.info(f"TRACE: Using png format for provider: {provider}")
+        return "png"  # Default to png for safety
 
 def preprocess_image(image_path: str, output_path: str, provider: str, rotation: int = 0, debug: bool = False) -> str:
     """Preprocess image to enhance OCR accuracy."""
-    logging.info(f"Preprocessing image: {image_path}")
-    image = cv2.imread(image_path)
-    logging.debug(f"cv2.imread returned type: {type(image)}")  # Log the return type
-    if image is None:
-        handle_error(f"Could not read image at {image_path}")
-
-    logging.debug(f"Original image shape: {image.shape if image is not None else None}, type: {type(image)}")
+    logging.info(f"TRACE: Entering preprocess_image with image_path={image_path}, output_path={output_path}, provider={provider}, rotation={rotation}")
+    
+    try:
+        image = cv2.imread(image_path)
+        logging.info(f"TRACE: cv2.imread returned type: {type(image)}")
+        
+        if image is None:
+            logging.error(f"TRACE: cv2.imread returned None for {image_path}")
+            logging.info(f"TRACE: File exists: {os.path.exists(image_path)}")
+            logging.info(f"TRACE: File size: {os.path.getsize(image_path) if os.path.exists(image_path) else 'N/A'}")
+            handle_error(f"Could not read image at {image_path}")
+            return None  # This line won't be reached due to handle_error, but added for clarity
+        
+        logging.info(f"TRACE: Original image shape: {image.shape}, type: {type(image)}")
 
     # Convert to grayscale if not already
     if len(image.shape) == 3:

@@ -12,30 +12,54 @@ from .utils import setup_logging, handle_error, validate_image_file
 
 def process_single_image(image_path: str, provider: Optional[str], config: AppConfig, model: Optional[str] = None) -> str:
     """Processes a single image and returns the transcribed text."""
+    import logging
+    logging.info(f"TRACE: Entering process_single_image with image_path={image_path}, provider={provider}, model={model}")
+    
     with tempfile.TemporaryDirectory() as temp_dir:
+        logging.info(f"TRACE: Created temp directory: {temp_dir}")
+        
         if provider is None and model:
+            logging.info(f"TRACE: Provider is None, inferring from model: {model}")
             if model in ("haiku", "sonnet", "anthropic", "claude"):
                 provider = "anthropic"
+                logging.info(f"TRACE: Inferred provider: {provider}")
             elif model in ("4o-mini", "gpt-4o"):
                 provider = "openai"
+                logging.info(f"TRACE: Inferred provider: {provider}")
         
-        # Add debug logging
-        import logging
-        logging.debug(f"Processing image: {image_path} with provider: {provider}")
+        logging.info(f"TRACE: Final provider: {provider}")
         
-        output_format = determine_output_format(image_path, provider)
-        logging.debug(f"Determined output format: {output_format}")
+        try:
+            output_format = determine_output_format(image_path, provider)
+            logging.info(f"TRACE: Determined output format: {output_format}")
+        except Exception as e:
+            logging.error(f"TRACE: Error in determine_output_format: {str(e)}")
+            import traceback
+            logging.error(f"TRACE: Traceback: {traceback.format_exc()}")
+            raise
         
         output_path = os.path.join(temp_dir, f"preprocessed.{output_format}")
-        logging.debug(f"Output path: {output_path}")
-        preprocessed_path = preprocess_image(
-            image_path,
-            output_path,
-            provider,
-            config.image_processing_settings["rotation"],
-            config.debug
-        )
-        return transcribe_image(preprocessed_path, provider, config, model)
+        logging.info(f"TRACE: Output path: {output_path}")
+        try:
+            logging.info(f"TRACE: Calling preprocess_image with image_path={image_path}, output_path={output_path}, provider={provider}")
+            preprocessed_path = preprocess_image(
+                image_path,
+                output_path,
+                provider,
+                config.image_processing_settings["rotation"],
+                config.debug
+            )
+            logging.info(f"TRACE: preprocess_image returned: {preprocessed_path}")
+            
+            logging.info(f"TRACE: Calling transcribe_image with preprocessed_path={preprocessed_path}, provider={provider}, model={model}")
+            result = transcribe_image(preprocessed_path, provider, config, model)
+            logging.info(f"TRACE: transcribe_image returned result of length: {len(result) if result else 0}")
+            return result
+        except Exception as e:
+            logging.error(f"TRACE: Error in process_single_image: {str(e)}")
+            import traceback
+            logging.error(f"TRACE: Traceback: {traceback.format_exc()}")
+            raise
 
 def process_pdf(pdf_path: str, provider: Optional[str], config: AppConfig, model: Optional[str] = None) -> str:
     """Processes a PDF and returns the transcribed text."""
@@ -72,8 +96,15 @@ def main():
                         help="Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     args = parser.parse_args()
 
-    setup_logging(args.log_level)
+    # Force debug level for troubleshooting
+    setup_logging("DEBUG")
+    
+    import logging
+    logging.info("TRACE: Starting main function")
+    logging.info(f"TRACE: Command line args: {args}")
+    
     config = load_config()
+    logging.info("TRACE: Config loaded")
 
     # Override config with command-line arguments
     config.image_processing_settings["rotation"] = args.rotate
