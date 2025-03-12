@@ -23,7 +23,7 @@ def _transcribe_with_openai(image_path: str, api_key: str, model: str = "gpt-4o"
     """Transcribes the text in the given image using OpenAI."""
     logging.info(f"Transcribing with OpenAI, model: {model}")
     try:
-        client = openai.OpenAI(api_key=api_key)
+        client = openai.OpenAI(api_key=api_key)  # Initialize without proxies (usually)
         base64_image = _encode_image(image_path)
         response = client.chat.completions.create(
             model=model,
@@ -41,12 +41,8 @@ def _transcribe_with_openai(image_path: str, api_key: str, model: str = "gpt-4o"
             ],
         )
         return response.choices[0].message.content.strip()
-    except openai.APIError as e:
+    except openai.OpenAIError as e:  # Catch the general OpenAIError
         handle_error(f"OpenAI API error: {e}", e)
-    except openai.RateLimitError as e:
-        handle_error(f"OpenAI rate limit exceeded: {e}", e)
-    except openai.Timeout as e:
-        handle_error(f"OpenAI API request timed out: {e}", e)
     except Exception as e:
         handle_error(f"Error during OpenAI transcription", e)
 
