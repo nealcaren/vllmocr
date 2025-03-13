@@ -15,10 +15,6 @@ from .config import AppConfig, get_api_key, get_default_model
 from .utils import handle_error, _encode_image
 from .prompts import get_prompt
 from .providers.anthropic import _transcribe_with_anthropic, _post_process_anthropic
-from .providers.openrouter import (
-    _transcribe_with_openrouter,
-    _post_process_openrouter,
-)
 
 
 def _transcribe_with_openai(
@@ -232,9 +228,9 @@ def transcribe_image(
         # Use the provided model directly, only trying to get from config if no model is provided
         full_model_name = model
         if model == "haiku":
-            full_model_name = "claude-3-haiku-20240307"
+            full_model_name = "claude-3-haiku-latest"
         elif model == "sonnet":
-            full_model_name = "claude-3-sonnet-20240229"
+            full_model_name = "claude-3-sonnet-latest"
         elif model == "4o-mini":
             full_model_name = "gpt-4o-mini"
         elif model == "gpt-4o":
@@ -274,10 +270,5 @@ def transcribe_image(
             image_path, prompt, model=full_model_name, debug=debug
         )
         return _post_process_ollama(text)
-    elif provider == "openrouter":
-        text = _transcribe_with_openrouter(
-            image_path, api_key, prompt, model=full_model_name, debug=debug
-        )
-        return _post_process_openrouter(text)
     else:
         handle_error(f"Unsupported LLM provider: {provider}")
