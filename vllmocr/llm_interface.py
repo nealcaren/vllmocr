@@ -101,7 +101,7 @@ def _transcribe_with_anthropic(image_path: str, api_key: str, prompt: str, model
         handle_error(f"Error during Anthropic transcription", e)
 
 
-def _transcribe_with_google(image_path: str, api_key: str, prompt: str, model: str = "gemini-1.5-pro-002") -> str:
+def _transcribe_with_google(image_path: str, api_key: str, prompt: str, model: str = "gemini-1.5-pro-002", debug: bool = False) -> str:
     """Transcribes the text in the given image using Google Gemini.
 
     NOTE: Update your config with the new model names.
@@ -245,7 +245,7 @@ def _post_process_ollama(text: str) -> str:
     """Applies post-processing to Ollama output."""
     return text.strip()
 
-def transcribe_image(image_path: str, provider: str, config: AppConfig, model: Optional[str] = None, custom_prompt: Optional[str] = None, api_key: Optional[str] = None) -> str:
+def transcribe_image(image_path: str, provider: str, config: AppConfig, model: Optional[str] = None, custom_prompt: Optional[str] = None, api_key: Optional[str] = None, debug: bool = False) -> str:
     """Transcribes text from an image using the specified LLM provider and model.
 
     Args:
@@ -254,6 +254,7 @@ def transcribe_image(image_path: str, provider: str, config: AppConfig, model: O
         config: The application configuration.
         model: The specific model to use (optional).
         custom_prompt: Optional custom prompt to use.
+        debug: Enables debug logging.
 
     Returns:
         The transcribed text.
