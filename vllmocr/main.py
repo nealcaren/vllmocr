@@ -13,7 +13,7 @@ from .image_processing import (
     determine_output_format,
 )
 from .llm_interface import transcribe_image
-from .config import load_config, AppConfig
+from .config import load_config, AppConfig, MODEL_MAPPING
 from .utils import setup_logging, handle_error, validate_image_file
 
 
@@ -142,7 +142,6 @@ def main():
 
     # Check if either provider or model is given
     if not args.provider and args.model:
-        from .config import MODEL_MAPPING  # Import here to avoid circular dependency
         if args.model in MODEL_MAPPING:
             provider, model = MODEL_MAPPING[args.model]
         else:
