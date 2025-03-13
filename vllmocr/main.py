@@ -160,6 +160,10 @@ def main():
         provider = "anthropic"
         model = "claude-3-5-haiku-latest"
 
+    # Ensure correct provider for specific models
+    if model in ["llama3", "minicpm"]:
+        provider = "ollama"
+
     try:
         if not os.path.exists(input_file):
             handle_error(f"Input file not found: {input_file}")
