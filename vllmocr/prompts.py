@@ -54,6 +54,7 @@ PROVIDER_PROMPTS = {
     "anthropic": ANTHROPIC_OCR_PROMPT,
     "google": DEFAULT_OCR_PROMPT,
     "ollama": DEFAULT_OCR_PROMPT,
+    "openrouter": DEFAULT_OCR_PROMPT, #  Can customize later
 }
 
 
