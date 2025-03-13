@@ -1,5 +1,11 @@
 
+import logging
+import os
+
 import anthropic
+
+from vllmocr.utils import handle_error
+from vllmocr.llm_interface import _encode_image
 
 
 OCR_PROMPT = '''# Image Transcription Guidelines
