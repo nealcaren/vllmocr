@@ -12,6 +12,10 @@ import os
 import requests
 
 from .config import AppConfig, get_api_key, get_default_model
+from .providers.anthropic import (
+    _transcribe_with_anthropic,
+    _post_process_anthropic,
+)
 from .utils import handle_error
 from .prompts import get_prompt
 
@@ -293,7 +297,9 @@ def transcribe_image(image_path: str, provider: str, config: AppConfig, model: O
         text = _transcribe_with_openai(image_path, api_key, prompt, model=full_model_name, debug=debug)
         return _post_process_openai(text)
     elif provider == "anthropic":
-        text = _transcribe_with_anthropic(image_path, api_key, prompt, model=full_model_name, debug=debug)
+        text = _transcribe_with_anthropic(
+            image_path, api_key, prompt, model=full_model_name, debug=debug
+        )
         return _post_process_anthropic(text)
     elif provider == "google":
         text = _transcribe_with_google(image_path, api_key, prompt, model=full_model_name, debug=debug)
