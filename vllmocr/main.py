@@ -28,12 +28,6 @@ def process_single_image(
     """Processes a single image and returns the transcribed text."""
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        if provider is None and model:
-            if model in ("haiku", "sonnet", "anthropic", "claude"):
-                provider = "anthropic"
-            elif model in ("4o-mini", "gpt-4o"):
-                provider = "openai"
-
         try:
             output_format = determine_output_format(image_path, provider)
             output_path = os.path.join(temp_dir, f"preprocessed.{output_format}")
@@ -44,9 +38,8 @@ def process_single_image(
                 config.image_processing_settings["rotation"],
                 config.debug,
             )
-            model_used = model if model else config.get_default_model(provider)
             logging.info(
-                f"Transcribing image from {image_path} using the {model_used} model from {provider}."
+                f"Transcribing image from {image_path} using the {model} model from {provider}."
             )
             result = transcribe_image(
                 preprocessed_path, provider, config, model, custom_prompt, api_key
@@ -71,11 +64,6 @@ def process_pdf(
 ) -> str:
     """Processes a PDF and returns the transcribed text."""
     with tempfile.TemporaryDirectory() as temp_dir:
-        if provider is None and model:
-            if model in ("haiku", "sonnet", "anthropic", "claude"):
-                provider = "anthropic"
-            elif model in ("4o-mini", "gpt-4o"):
-                provider = "openai"
         try:
             image_paths = pdf_to_images(pdf_path, temp_dir)
         except ValueError as e:
@@ -83,9 +71,8 @@ def process_pdf(
             raise
         all_text = []
         num_pages = len(image_paths)
-        model_used = model if model else config.get_default_model(provider)
         logging.info(
-            f"Transcribing {num_pages} pages from {pdf_path} using the {model_used} model from {provider}."
+            f"Transcribing {num_pages} pages from {pdf_path} using the {model} model from {provider}."
         )
         for i, image_path in enumerate(image_paths):
             text = process_single_image(
