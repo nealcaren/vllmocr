@@ -91,6 +91,8 @@ def get_api_key(config: AppConfig, provider: str) -> Optional[str]:
         return config.google_api_key
     elif provider == "ollama":
         return None
+    elif provider == "openrouter":
+        return os.environ.get("OPENROUTER_API_KEY")
     else:
         return None
 
