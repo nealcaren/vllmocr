@@ -11,7 +11,7 @@ from .config import load_config, AppConfig
 from .utils import setup_logging, handle_error, validate_image_file
 
 
-def process_single_image(image_path: str, provider: Optional[str], config: AppConfig, model: Optional[str] = None, custom_prompt: Optional[str] = None) -> str:
+def process_single_image(image_path: str, provider: Optional[str], config: AppConfig, model: Optional[str] = None, custom_prompt: Optional[str] = None, api_key: Optional[str] = None) -> str:
     """Processes a single image and returns the transcribed text."""
     import logging
     logging.info(f"TRACE: Entering process_single_image with image_path={image_path}, provider={provider}, model={model}, custom_prompt={custom_prompt}")
