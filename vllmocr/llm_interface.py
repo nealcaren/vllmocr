@@ -21,9 +21,10 @@ def _encode_image(image_path: str) -> str:
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode("utf-8")
 
-def _transcribe_with_openai(image_path: str, api_key: str, prompt: str, model: str = "gpt-4o") -> str:
+def _transcribe_with_openai(image_path: str, api_key: str, prompt: str, model: str = "gpt-4o", debug: bool = False) -> str:
     """Transcribes the text in the given image using OpenAI."""
-    logging.info(f"Transcribing with OpenAI, model: {model}")
+    if debug:
+        logging.info(f"Transcribing with OpenAI, model: {model}")
     try:
         client = openai.OpenAI(api_key=api_key)
         base64_image = _encode_image(image_path)
@@ -56,9 +57,10 @@ def _transcribe_with_openai(image_path: str, api_key: str, prompt: str, model: s
         handle_error(f"Error during OpenAI transcription", e)
 
 
-def _transcribe_with_anthropic(image_path: str, api_key: str, prompt: str, model: str = "claude-3-haiku-20240307") -> str:
+def _transcribe_with_anthropic(image_path: str, api_key: str, prompt: str, model: str = "claude-3-haiku-20240307", debug: bool = False) -> str:
     """Transcribes the text in the given image using Anthropic."""
-    logging.info(f"Transcribing with Anthropic, model: {model}")
+    if debug:
+        logging.info(f"Transcribing with Anthropic, model: {model}")
     try:
         client = anthropic.Anthropic(api_key=api_key)
         encoded_image = _encode_image(image_path)
@@ -104,7 +106,8 @@ def _transcribe_with_google(image_path: str, api_key: str, prompt: str, model: s
 
     NOTE: Update your config with the new model names.
     """
-    logging.info(f"Transcribing with Google, model: {model}")
+    if debug:
+        logging.info(f"Transcribing with Google, model: {model}")
     try:
         client = genai.Client(api_key=api_key)
         image_type = os.path.splitext(image_path)[1][1:].lower()
@@ -125,9 +128,10 @@ def _transcribe_with_google(image_path: str, api_key: str, prompt: str, model: s
         handle_error(f"Error during Google Gemini transcription", e)
 
 
-def _transcribe_with_ollama(image_path: str, prompt: str, model: str) -> str:
+def _transcribe_with_ollama(image_path: str, prompt: str, model: str, debug: bool = False) -> str:
     """Transcribes the text in the given image using Ollama."""
-    logging.info(f"Transcribing with Ollama, model: {model}")
+    if debug:
+        logging.info(f"Transcribing with Ollama, model: {model}")
     try:
         # Check if the model is available
         ollama.show(model=model)
@@ -137,15 +141,18 @@ def _transcribe_with_ollama(image_path: str, prompt: str, model: str) -> str:
             response = input(f"Model '{model}' not found. Do you want to pull it? (y/N): ")
             if response.lower() == 'y':
                 try:
-                    logging.info(f"Pulling Ollama model: {model}")
+                    if debug:
+                        logging.info(f"Pulling Ollama model: {model}")
                     last_status = None
                     for progress in ollama.pull(model=model, stream=True):
                         status = progress.get('status')
                         if status != last_status:
                             if 'progress' in progress:
-                                print(f"  {status}: {progress['progress']}%")
+                                if debug:
+                                    print(f"  {status}: {progress['progress']}%")
                             else:
-                                print(f"  {status}")
+                                if debug:
+                                    print(f"  {status}")
                             last_status = status
 
                 except Exception as pull_e:
@@ -254,7 +261,6 @@ def transcribe_image(image_path: str, provider: str, config: AppConfig, model: O
     Raises:
         ValueError: If the provider is not supported or if the model is required but not provided.
     """
-    logging.info(f"TRACE: Entering transcribe_image with provider={provider}, model={model}, custom_prompt={custom_prompt}")
 
     # Get the full model name based on the alias or use the provided model
     full_model_name = None
@@ -281,19 +287,18 @@ def transcribe_image(image_path: str, provider: str, config: AppConfig, model: O
         raise ValueError(f"No API key found for provider {provider}")
 
     prompt = get_prompt(provider, custom_prompt)
-    logging.info(f"Using provider: {provider}, model: {full_model_name}, prompt: {prompt}")
 
     if provider == "openai":
-        text = _transcribe_with_openai(image_path, api_key, prompt, model=full_model_name)
+        text = _transcribe_with_openai(image_path, api_key, prompt, model=full_model_name, debug=debug)
         return _post_process_openai(text)
     elif provider == "anthropic":
-        text = _transcribe_with_anthropic(image_path, api_key, prompt, model=full_model_name)
+        text = _transcribe_with_anthropic(image_path, api_key, prompt, model=full_model_name, debug=debug)
         return _post_process_anthropic(text)
     elif provider == "google":
-        text = _transcribe_with_google(image_path, api_key, prompt, model=full_model_name)
+        text = _transcribe_with_google(image_path, api_key, prompt, model=full_model_name, debug=debug)
         return _post_process_google(text)
     elif provider == "ollama":
-        text = _transcribe_with_ollama(image_path, prompt, model=full_model_name)
+        text = _transcribe_with_ollama(image_path, prompt, model=full_model_name, debug=debug)
         return _post_process_ollama(text)
     else:
         handle_error(f"Unsupported LLM provider: {provider}")
