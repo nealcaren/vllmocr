@@ -9,27 +9,32 @@
 *   **Image and PDF OCR:** Extracts text from both images (PNG, JPG, JPEG) and PDF files.
 *   **Multiple LLM Providers:**  Supports a variety of LLMs:
     *   **OpenAI:**  GPT-4o
-    *   **Anthropic:** Claude 3 Haiku, Claude 3 Sonnet
+    *   **Anthropic:** Claude 3 Haiku, Claude 3.5 Haiku, Claude 3 Sonnet
     *   **Google:** Gemini 1.5 Pro
-    *   **Ollama:**  (Local models) Llama3, MiniCPM, and other models supported by Ollama.
+    *   **Ollama:**  (Local models) Llama3, Llama3.2-vision, MiniCPM, and other models supported by Ollama.
+    *   **OpenRouter:** Access to various models through the OpenRouter API
 *   **Configurable:**  Settings, including the LLM provider and model, can be adjusted via a configuration file or environment variables.
 *   **Image Preprocessing:** Includes optional image rotation for improved OCR accuracy.
 
 ## Installation
 
-It is recommended to install `vllmocr` using `uv`:
+The recommended way to install `vllmocr` is using `uv tool install`:
 
 ```bash
-uv pip install vllmocr
+uv tool install vllmocr
 ```
 
 If you don't have `uv` installed, you can install it with:
 ```
-pipx install uv
+curl -sSf https://install.ultraviolet.rs | sh
 ```
 You may need to restart your shell session for `uv` to be available.
 
-Alternatively, you can use `pip`:
+Alternatively, you can use `uv pip` or regular `pip`:
+
+```bash
+uv pip install vllmocr
+```
 
 ```bash
 pip install vllmocr
@@ -37,61 +42,56 @@ pip install vllmocr
 
 ## Usage
 
-The `vllmocr` command-line tool has two main subcommands: `image` and `pdf`.
-
-**1.  Process a Single Image:**
+`vllmocr` is a simple command-line tool that processes both images and PDFs:
 
 ```bash
-vllmocr image <image_path> [options]
+vllmocr <file_path> [options]
 ```
 
-*   `<image_path>`:  The path to the image file (PNG, JPG, JPEG).
+*   `<file_path>`:  The path to the image file (PNG, JPG, JPEG) or PDF file.
 
 **Options:**
 
-*   `--provider`:  The LLM provider to use (openai, anthropic, google, ollama).  Defaults to `openai`.
-*   `--model`: The specific model to use (e.g., `gpt-4o`, `haiku`, `gemini-1.5-pro-002`, `llama3`).  Defaults to the provider's default model.
-*   `--api-key`: The API key for the LLM provider. Overrides API keys from the config file or environment variables.
-*    `--config`: Path to a TOML configuration file.
+*   `-o, --output`: Output file name (default: auto-generated based on input filename and model).
+*   `-p, --provider`: The LLM provider to use (openai, anthropic, google, ollama, openrouter). Defaults to `anthropic`.
+*   `-m, --model`: The specific model to use (e.g., `gpt-4o`, `haiku`, `llama3.2-vision`, `google/gemma-3-27b-it`). Defaults to `claude-3-5-haiku-latest`.
+*   `-c, --custom-prompt`: Custom prompt to use for the LLM.
+*   `--api-key`: API key for the LLM provider. Overrides API keys from the config file or environment variables.
+*   `--rotate`: Manually rotate image by specified degrees (0, 90, 180, or 270).
+*   `--debug`: Save intermediate processing steps for debugging.
+*   `--log-level`: Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
 *   `--help`: Show the help message and exit.
 
-**Example:**
+**Examples:**
 
 ```bash
-vllmocr image my_image.jpg --provider anthropic --model haiku
+vllmocr my_image.jpg -m haiku
 ```
-
-**2. Process a PDF:**
 
 ```bash
-vllmocr pdf <pdf_path> [options]
+vllmocr document.pdf -p ollama -m llama3.2-vision
 ```
-
-*   `<pdf_path>`: The path to the PDF file.
-
-**Options:** (Same as `image` subcommand, including `--api-key`)
-
-**Example:**
 
 ```bash
-vllmocr pdf my_document.pdf --provider openai --model gpt-4o
+vllmocr scan.jpg -p openai -m gpt-4o --rotate 90
 ```
+
+Running `vllmocr` without arguments will display a help message with usage examples.
 
 ## Configuration
 
-`vllmocr` can be configured using a TOML file or environment variables.  The configuration file is searched for in the following locations (in order of precedence):
+`vllmocr` can be configured using a TOML file or environment variables. The configuration file is searched for in the following locations (in order of precedence):
 
-1.  A path specified with the `--config` command-line option.
-2.  `./config.toml` (current working directory)
-3.  `~/.config/vllmocr/config.toml` (user's home directory)
-4.  `/etc/vllmocr/config.toml` (system-wide)
+1.  `./config.toml` (current working directory)
+2.  `~/.config/vllmocr/config.toml` (user's home directory)
+3.  `/etc/vllmocr/config.toml` (system-wide)
 
 **config.toml (Example):**
 
 ```toml
 [llm]
 provider = "anthropic"  # Default provider
-model = "haiku"        # Default model for the provider
+model = "claude-3-5-haiku-latest"  # Default model for the provider
 
 [image_processing]
 rotation = 0           # Image rotation in degrees (optional)
@@ -100,6 +100,7 @@ rotation = 0           # Image rotation in degrees (optional)
 openai = "YOUR_OPENAI_API_KEY"
 anthropic = "YOUR_ANTHROPIC_API_KEY"
 google = "YOUR_GOOGLE_API_KEY"
+openrouter = "YOUR_OPENROUTER_API_KEY"
 # Ollama doesn't require an API key
 ```
 
@@ -110,8 +111,9 @@ You can also set API keys using environment variables:
 *   `VLLM_OCR_OPENAI_API_KEY`
 *   `VLLM_OCR_ANTHROPIC_API_KEY`
 *   `VLLM_OCR_GOOGLE_API_KEY`
+*   `VLLM_OCR_OPENROUTER_API_KEY`
 
-Environment variables override settings in the configuration file.  This is the recommended way to set API keys for security reasons. You can also pass the API key directly via the `--api-key` command-line option, which takes the highest precedence.
+Environment variables override settings in the configuration file. This is the recommended way to set API keys for security reasons. You can also pass the API key directly via the `--api-key` command-line option, which takes the highest precedence.
 
 ## Development
 
