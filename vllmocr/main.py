@@ -57,7 +57,7 @@ def process_pdf(pdf_path: str, provider: Optional[str], config: AppConfig, model
             raise
         all_text = []
         for image_path in image_paths:
-            text = process_single_image(image_path, provider, config, model, custom_prompt, args.api_key)
+            text = process_single_image(image_path, provider, config, model, custom_prompt, api_key)
             all_text.append(text)
         return "\n\n".join(all_text)
 
