@@ -238,7 +238,7 @@ def _post_process_ollama(text: str) -> str:
     """Applies post-processing to Ollama output."""
     return text.strip()
 
-def transcribe_image(image_path: str, provider: str, config: AppConfig, model: Optional[str] = None, custom_prompt: Optional[str] = None) -> str:
+def transcribe_image(image_path: str, provider: str, config: AppConfig, model: Optional[str] = None, custom_prompt: Optional[str] = None, api_key: Optional[str] = None) -> str:
     """Transcribes text from an image using the specified LLM provider and model.
 
     Args:

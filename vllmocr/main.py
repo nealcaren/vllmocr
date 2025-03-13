@@ -57,7 +57,7 @@ def process_pdf(pdf_path: str, provider: Optional[str], config: AppConfig, model
             raise
         all_text = []
         for image_path in image_paths:
-            text = process_single_image(image_path, provider, config, model, custom_prompt)
+            text = process_single_image(image_path, provider, config, model, custom_prompt, args.api_key)
             all_text.append(text)
         return "\n\n".join(all_text)
 
@@ -70,6 +70,7 @@ def main():
                         help="LLM provider ('openai', 'anthropic', 'google', 'ollama').")
     parser.add_argument("-m", "--model", type=str, help="Model alias to use (e.g., 'haiku', 'gpt-4o', 'llama3').")
     parser.add_argument("-c", "--custom-prompt", type=str, help="Custom prompt to use for the LLM.")
+    parser.add_argument("--api-key", type=str, help="API key for the LLM provider.")
     parser.add_argument("--rotate", type=int, choices=[0, 90, 180, 270], default=0,
                         help="Manually rotate image by specified degrees (0, 90, 180, or 270)")
     parser.add_argument("--debug", action="store_true", help="Save intermediate processing steps for debugging")
