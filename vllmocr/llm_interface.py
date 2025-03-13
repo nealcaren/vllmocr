@@ -263,7 +263,7 @@ def transcribe_image(
         return _post_process_ollama(text)
     elif provider == "openrouter":
         text = _transcribe_with_openrouter(
-            image_path, prompt, model=full_model_name, debug=debug
+            image_path, api_key, prompt, model=full_model_name, debug=debug
         )
         return _post_process_openrouter(text)
     else:
