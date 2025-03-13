@@ -153,9 +153,26 @@ def main():
     input_file = args.input
     api_key = args.api_key
 
-    provider = args.provider
-    model = args.model
-
+    # Check if either provider or model is given
+    if not args.provider and args.model:
+        from .config import MODEL_MAPPING  # Import here to avoid circular dependency
+        if args.model in MODEL_MAPPING:
+            provider, model = MODEL_MAPPING[args.model]
+        else:
+            handle_error(
+                f"Model '{args.model}' requires a provider. Or is not a supported model."
+            )
+    elif args.provider and not args.model:
+        # If only provider, we'll use its default model later
+        provider = args.provider
+        model = None  # Explicitly set to None
+    elif args.provider and args.model:
+        provider = args.provider
+        model = args.model
+    else:
+        # Neither is provided, use defaults
+        provider = "anthropic"
+        model = "claude-3-5-haiku-latest"
 
     try:
         if not os.path.exists(input_file):
