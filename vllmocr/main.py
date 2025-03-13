@@ -161,7 +161,7 @@ def main():
         model = "claude-3-5-haiku-latest"
 
     # Ensure correct provider for specific models
-    if model in ["llama3", "minicpm"]:
+    if model in ["llama3", "minicpm", "minicpm-v"]:
         provider = "ollama"
 
     try:
