@@ -97,7 +97,7 @@ def main():
         "-p",
         "--provider",
         type=str,
-        help="LLM provider ('openai', 'anthropic', 'google', 'ollama').",
+        help="LLM provider ('openai', 'anthropic', 'google', 'ollama', 'openrouter').",
     )
     parser.add_argument(
         "-m",
