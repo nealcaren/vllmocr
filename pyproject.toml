@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vllmocr"
-version = "0.3.6"
+version = "0.3.8"
 description = "OCR project using LLMs"
 readme = "README.md"
 keywords = ["ocr", "llm", "image processing", "vllm"]

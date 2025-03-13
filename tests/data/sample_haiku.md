@@ -1,29 +1,38 @@
 # 'GRANDFATHER CLAUSES.'
 
-## Prof. Du Bois Tells of Discriminations Favoring Whites
+Prof. Du Bois Tells of Discriminations Favoring Whites
 
 To the Editor of The New York Times:
 
-In the article "Jim Crow Disenfranchised," in THE TIMES of Oct. 30, your special writer states:
+In the article "Grandfather Clauses," in The Times of Oct. 30, your special writer wrote:
 
-"The law prescribes the qualifications of all voters equally, but owing to various constitutional amendments adopted in the Southern States, the overwhelming majority of white men cannot be denied the vote."
+"The law prescribes the qualifications of all voters, but the courts have held that the constitution allows the States to make such exceptions as their legislatures may deem wise, providing only that the exceptions do not conflict hard with the rule that only colored voters can meet the legal requirements, thus practically disfranchising them at will."
 
-This is not a fair statement of the case. By the well-known "grandfather clauses," ignorant white men have been given the life-long hereditary right to vote, while Negroes who had complied with every legal requirement and had actually passed the most rigid examination that local officials could devise were deliberately disfranchised.
+This is not a fair statement of the case. By the well-known "grandfather clauses" the ignorant white man have been given the life-long hereditary right to vote, which the negroes did not acquire before certain dates, so that it is not merely a question of meeting "legal requirements," but of satisfying qualifications actually denied to negroes. These qualifications are so stringent that in some cases a colored graduate of Harvard, Yale or other leading university is denied the right to vote, while the most ignorant white man may exercise this privilege. This is a plain case of discrimination in the fundamental rights of citizens.
 
-A further fact, which it is carefully omitted, is that a colored graduate of Harvard, Yale or any other Northern university, if he happens to live in Virginia, writes:
+From Louisiana we learn:
+It is boldly maintained that in the negroes' registration in Louisiana, which Secretary Redfield Proctor of the United States War Department asks the Attorney General to investigate, only those negroes were allowed to register who could read the whole of the State Constitution or understand it as read to them by the registrars, while the illiterate whites were passed by under the "grandfather clause." This is a plain case of discrimination in denying the negroes the fundamental rights of citizenship.
 
-"On the ground of illiteracy we are disfranchised - the Registrar is a young white man of the intelligence-test degree; while our intelligent Negroes, farmers, artisans and laborers, who have been denied the chance of an education, are not allowed to register." 
+From North Carolina a friend writes:
+"The amendment, as you know, was not designed for the disfranchisement of the colored voters, but to prevent their participation in voting-and the opposition among the dominant race and public is chiefly toward educated negroes, in the matter of their voting. It is naturally becoming a court trouble, simply do not register and vote. I shall not ignore the demands of the race in this State generally through their leader. Here is the point where the situation stops, there is no hope."
 
-This is not proper form. He had carefully asked me a series of questions, term of office, date of the next election, etc., and found that I could answer the questions correctly with the exception of one and then was told that I had flunked and could not register.
+The result of the disenfranchisement of intelligent property-holding negroes is shown by these figures from Louisiana:
 
-The result of the disfranchisement of intelligent property-holding Negroes is shown by these figures from Louisiana: 
+1900-Population ................. 1,381,625
+1900-Whites registered............ 130,344
+1900-Colored registered ........... 130,334
 
-- 1900—Population ............................ 1,381,411
-- 1900—Voters ...................................222,811
-- 1920—Voters ...................................106,525
+1910-Population.................. 1,656,388
+1910-Whites registered............ 190,849
+1910-Colored registered............. 50,052
+Your editorial writer thinks that such conditions show progress! "The whites folks are in the saddle-down South, just as they are up North," and they intend to stay there, "whatever the cost in principle and in shame." This sounds very gay and happy," but let us face a moment for some plain facts:
 
-Yet the Negroes of Louisiana have increased their numbers from three-quarters of a million to a million. How is this for Democracy? The facts are known to the Director of the Census and to the Director of Public Affairs.
+Minnesota and Alabama each sent nine Representatives to Washington in 1933. The First Congressional District in each State gives the following votes:
 
+First Dist., Alabama..............1,721
+First Dist., Minnesota............ 82,531
+
+Now, is it that 7,000 voters in Alabama have the same power as 82,531 voters in Minnesota? "Is it because 2,234 voters in the First District of Alabama were black and disfranchised, in spite of the fact that there 10,000 of them who could read and write and pay their taxes, but they were denied and enough to go to the polls because there is no protection in Alabama on which people can vote except the "negro" question."
+
+"How is this for 'Democracy' where the Director of Public Welfare; W. R. B. DuBois, says, 'the Negroes in Louisiana have been given the life-long hereditary right to vote, which the negroes did not acquire before certain dates, but the white"?
 New York, Nov. 2, 1912.
-
-[Image: A newspaper article titled "GRANDFATHER CLAUSES." with a subheading "Prof. Du Bois Tells of Discriminations Favoring Whites."]
