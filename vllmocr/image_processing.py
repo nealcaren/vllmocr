@@ -1,12 +1,10 @@
 import logging
 import os
 import re
-import tempfile
-from typing import List, Optional
+from typing import List
 
 import cv2
 import pymupdf as fitz  # PyMuPDF
-import imghdr
 
 from .utils import handle_error
 
@@ -107,11 +105,6 @@ def preprocess_image(
             logging.error(f"Traceback: {traceback.format_exc()}")
         raise
 
-
-import logging
-import os
-import fitz  # PyMuPDF
-from typing import List
 
 
 def pdf_to_images(pdf_path: str, output_dir: str) -> List[str]:

@@ -1,37 +1,19 @@
 import argparse
-import argparse
 import os
-import sys
 import tempfile
 from typing import List, Optional
-
-from .image_processing import (
-    preprocess_image,
-    pdf_to_images,
-    sanitize_filename,
-    determine_output_format,
-)
-from .llm_interface import transcribe_image
-from .config import load_config, AppConfig
-from .utils import setup_logging, handle_error, validate_image_file
-
-
-import argparse
-import os
-import sys
-import tempfile
-from typing import List, Optional
-
-from .image_processing import (
-    preprocess_image,
-    pdf_to_images,
-    sanitize_filename,
-    determine_output_format,
-)
-from .llm_interface import transcribe_image
-from .config import load_config, AppConfig
-from .utils import setup_logging, handle_error, validate_image_file
 import logging
+
+
+from .image_processing import (
+    preprocess_image,
+    pdf_to_images,
+    sanitize_filename,
+    determine_output_format,
+)
+from .llm_interface import transcribe_image
+from .config import load_config, AppConfig
+from .utils import setup_logging, handle_error, validate_image_file
 
 
 def process_single_image(

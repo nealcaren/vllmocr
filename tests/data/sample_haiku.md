@@ -1,38 +1,37 @@
 # 'GRANDFATHER CLAUSES.'
 
-Prof. Du Bois Tells of Discriminations Favoring Whites
+## Prof. Du Bois Tells of Discriminations Favoring Whites
 
 To the Editor of The New York Times:
 
-In the article "Grandfather Clauses," in The Times of Oct. 30, your special writer wrote:
+In the article "The Negro Disenfranchised," in The Times of Oct. 30, you refer to the so-called "grandfather clauses." *The law prescribes* the qualifications of all voters. In some States these qualifications are made so difficult for the negro that few can meet them, while at the same time **the "grandfather clause" exempts from these requirements all persons who were voters, or whose ancestors were voters, prior to a certain date.** This is not a fair statement of the case. **By the well-known "grandfather clauses" ignorant white voters have been given the life-long hereditary right to vote, while negroes, no matter how intelligent, are denied this right before the courts.**
 
-"The law prescribes the qualifications of all voters, but the courts have held that the constitution allows the States to make such exceptions as their legislatures may deem wise, providing only that the exceptions do not conflict hard with the rule that only colored voters can meet the legal requirements, thus practically disfranchising them at will."
+Further than this, the statutes declare that all qualifications required by law shall be enforced "without discrimination" as to "race, color or previous condition of servitude." But this "without discrimination" has not been possible. In the leading case it has been shown by a colored graduate of Harvard, who offered himself for registration in Virginia, whites were registered who could not read or write, while he was denied registration.
 
-This is not a fair statement of the case. By the well-known "grandfather clauses" the ignorant white man have been given the life-long hereditary right to vote, which the negroes did not acquire before certain dates, so that it is not merely a question of meeting "legal requirements," but of satisfying qualifications actually denied to negroes. These qualifications are so stringent that in some cases a colored graduate of Harvard, Yale or other leading university is denied the right to vote, while the most ignorant white man may exercise this privilege. This is a plain case of discrimination in the fundamental rights of citizens.
+## On the Louisiana Situation
 
-From Louisiana we learn:
-It is boldly maintained that in the negroes' registration in Louisiana, which Secretary Redfield Proctor of the United States War Department asks the Attorney General to investigate, only those negroes were allowed to register who could read the whole of the State Constitution or understand it as read to them by the registrars, while the illiterate whites were passed by under the "grandfather clause." This is a plain case of discrimination in denying the negroes the fundamental rights of citizenship.
+It is widely understood that the suffrage restrictions in Louisiana are designed to eliminate the negro vote. From Louisiana we learn:
 
-From North Carolina a friend writes:
-"The amendment, as you know, was not designed for the disfranchisement of the colored voters, but to prevent their participation in voting-and the opposition among the dominant race and public is chiefly toward educated negroes, in the matter of their voting. It is naturally becoming a court trouble, simply do not register and vote. I shall not ignore the demands of the race in this State generally through their leader. Here is the point where the situation stops, there is no hope."
+It is *bitterly understood* that the negroes of that State, Louisiana, are no longer given the suffrage. In 1900 the population was 1,381,686, of whom 650,804 were negroes. By the census of 1910 the population was 1,656,388, of whom 695,766 were negroes. Thus the disproportion between white and black voters has been steadily increasing.
 
-The result of the disenfranchisement of intelligent property-holding negroes is shown by these figures from Louisiana:
+The result is that the disenfranchisement of intelligent property-holding negroes is shown by these figures from Louisiana:
 
-1900-Population ................. 1,381,625
-1900-Whites registered............ 130,344
-1900-Colored registered ........... 130,334
+1900-Population ..............1,381,686
+1910-Total population .......1,656,388
+1910-Illiterates ................106,265 
+1910-Registered voters .......391,422
 
-1910-Population.................. 1,656,388
-1910-Whites registered............ 190,849
-1910-Colored registered............. 50,052
-Your editorial writer thinks that such conditions show progress! "The whites folks are in the saddle-down South, just as they are up North," and they intend to stay there, "whatever the cost in principle and in shame." This sounds very gay and happy," but let us face a moment for some plain facts:
+Yet the negroes of Louisiana have increased their relative numbers from one-half to three-fifths of the total population. With less than 400,000 voters at most the white oligarchy controls the State against the wishes of the negro masses.
 
-Minnesota and Alabama each sent nine Representatives to Washington in 1933. The First Congressional District in each State gives the following votes:
+Your special writer thinks that such disenfranchisement of the negro indicates "what the negro race must do." I think the "white folks are in the middle." What they are expected to do, *whatever the restrictions*, is to make a great effort to win over the negro to a loyal citizenship and Union. "This sounds easy and happy," but let us face a moment for some plain facts:
 
-First Dist., Alabama..............1,721
-First Dist., Minnesota............ 82,531
+- Minnesota and Alabama each sent nine members to Washington in 1903. The First Congressional District in each State votes as follows:
+  
+  First Dist. Alabama ..............14,724
+  First Dist. Minnesota ..........202,323
 
-Now, is it that 7,000 voters in Alabama have the same power as 82,531 voters in Minnesota? "Is it because 2,234 voters in the First District of Alabama were black and disfranchised, in spite of the fact that there 10,000 of them who could read and write and pay their taxes, but they were denied and enough to go to the polls because there is no protection in Alabama on which people can vote except the "negro" question."
+Now is it just that 1,000 voters in Alabama have the same power as 30,000 voters in Minnesota? "It is because 22,334 voters in the First District of Alabama were black and disfranchised, in spite of the fact that 60,000 of them could read and yet were prevented from voting, because there is a conspiracy afoot to get control of the polls in Alabama on which great issues are decided by the 'negro' question." 
 
-"How is this for 'Democracy' where the Director of Public Welfare; W. R. B. DuBois, says, 'the Negroes in Louisiana have been given the life-long hereditary right to vote, which the negroes did not acquire before certain dates, but the white"?
+"How is this for 'Democracy'? Verily, 'The hand is the hand of E. D. D., Director of Public Instruction, for the Advancement of Colored People.'"
+
 New York, Nov. 2, 1912.

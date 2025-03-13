@@ -1,7 +1,6 @@
 import logging
 import sys
 import imghdr
-import sys
 import base64
 
 
