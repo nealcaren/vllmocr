@@ -1,4 +1,4 @@
-DEFAULT_OCR_PROMPT = "Extract all text from the image and format it as Markdown."
+DEFAULT_OCR_PROMPT = "As a text transcriptionist, extract all visible text from the page into Markdown format, preserving complete content without summarization and applying proper formatting conventions such as headings, lists, emphasis, and image notations. Return only the page's text."
 
 ANTHROPIC_OCR_PROMPT = """# Image Transcription Guidelines
 

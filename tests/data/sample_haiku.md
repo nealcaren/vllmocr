@@ -1,37 +1,40 @@
-# 'GRANDFATHER CLAUSES.'
+# 'GRANDFATHER CLAUSES,' 
+Prof. Du Bois Tells of Discriminations Favoring Whites
 
-## Prof. Du Bois Tells of Discriminations Favoring Whites
+*To the Editor of The New York Times:*
+I in the article on "Grandfather Clauses," in THE TIMES of Oct. 30, your special writer says:
 
-To the Editor of The New York Times:
+*"The law prescribes the qualifications of all voters, and these may be, and in Virginia, they are, conditions so hard that few colored voters can meet the test--revenue-producing taxes, educational tests, good character, etc."*
 
-In the article "The Negro Disenfranchised," in The Times of Oct. 30, you refer to the so-called "grandfather clauses." *The law prescribes* the qualifications of all voters. In some States these qualifications are made so difficult for the negro that few can meet them, while at the same time **the "grandfather clause" exempts from these requirements all persons who were voters, or whose ancestors were voters, prior to a certain date.** This is not a fair statement of the case. **By the well-known "grandfather clauses" ignorant white voters have been given the life-long hereditary right to vote, while negroes, no matter how intelligent, are denied this right before the courts.**
+This is not a fair statement of the case. By the well-known "grandfather clauses," ignorant white men have been given the life-long hereditary right to vote, while negroes born in the South are often unable to meet every legal requirement and denied registration, although if they were white they would be registered by virtue of their fathers' votes. A further result, says a leader in the voting case: "A colored graduate of Harvard University, who offered himself for registration in Virginia, writes me:
 
-Further than this, the statutes declare that all qualifications required by law shall be enforced "without discrimination" as to "race, color or previous condition of servitude." But this "without discrimination" has not been possible. In the leading case it has been shown by a colored graduate of Harvard, who offered himself for registration in Virginia, whites were registered who could not read or write, while he was denied registration.
+'On the assumption that I had violated a law, I was handed a piece of paper and told to make my petition. I filled the paper, stating that I had never been convicted of a felony, was not under curatorship, had paid all taxes, and could read and write. This I did in proper form. It was carefully filled in a courteous manner and handed the clerk, who looked at it a moment, saying "You do not seem to be on the list. Your registration will be denied."'"
 
-## On the Louisiana Situation
+From Louisiana we learn:
+It is loudly announced that "in the negro's home towns in Louisiana, the negroes are forever being registered." In spite of this, a friend in North Carolina writes:
 
-It is widely understood that the suffrage restrictions in Louisiana are designed to eliminate the negro vote. From Louisiana we learn:
+*"The amendment, as you know, was not adopted for the betterment of the disfranchised, but simply to deprive all negro voters of the State, by adding a poll tax and educational qualifications which the majority of negroes cannot meet. Should they attempt to vote, they are simply not registered and told that this point in their exclusion stops."*
 
-It is *bitterly understood* that the negroes of that State, Louisiana, are no longer given the suffrage. In 1900 the population was 1,381,686, of whom 650,804 were negroes. By the census of 1910 the population was 1,656,388, of whom 695,766 were negroes. Thus the disproportion between white and black voters has been steadily increasing.
+The result of the disenfranchisement of intelligent property-holding negroes is shown by these figures from Louisiana:
 
-The result is that the disenfranchisement of intelligent property-holding negroes is shown by these figures from Louisiana:
+1900--Population .....................727,362 105,915
+1920--White 21 years and over......333,567 35,484
+Illiterates .............................55,395 50,652
+Negro 21 years and over..............321,849 70,431
+Illiterates..............................129,342 65,252
 
-1900-Population ..............1,381,686
-1910-Total population .......1,656,388
-1910-Illiterates ................106,265 
-1910-Registered voters .......391,422
+Yet the negroes of Louisiana have increased their number from one-quarter and one-third to twelve and one-third per cent of the total vote, and this in face of the fact that in America the negroes have reduced their illiteracy to 3.2 per cent.
 
-Yet the negroes of Louisiana have increased their relative numbers from one-half to three-fifths of the total population. With less than 400,000 voters at most the white oligarchy controls the State against the wishes of the negro masses.
+Your special writer thinks that such exclusion, "The whites are in the saddle, and there they expect to stay, whatever the United States may say and do." This is the history of the disenfranchisement of the negro in the South and the way they expect it to stay. But let us for a moment face some plain facts.
 
-Your special writer thinks that such disenfranchisement of the negro indicates "what the negro race must do." I think the "white folks are in the middle." What they are expected to do, *whatever the restrictions*, is to make a great effort to win over the negro to a loyal citizenship and Union. "This sounds easy and happy," but let us face a moment for some plain facts:
+Minnesota and Alabama each sent nine representatives to Washington in 1903. The First Congressional District in each State votes as follows:
 
-- Minnesota and Alabama each sent nine members to Washington in 1903. The First Congressional District in each State votes as follows:
-  
-  First Dist. Alabama ..............14,724
-  First Dist. Minnesota ..........202,323
+      Dist. Alabama     Dist. Minn.
+1900--Voted ............1,154 5,107
+1920--Voted...........202,101 32,151
 
-Now is it just that 1,000 voters in Alabama have the same power as 30,000 voters in Minnesota? "It is because 22,334 voters in the First District of Alabama were black and disfranchised, in spite of the fact that 60,000 of them could read and yet were prevented from voting, because there is a conspiracy afoot to get control of the polls in Alabama on which great issues are decided by the 'negro' question." 
+"How is it that 7,000 voters in Alabama have the same congressional representation as 32,000 voters in Minnesota?
 
-"How is this for 'Democracy'? Verily, 'The hand is the hand of E. D. D., Director of Public Instruction, for the Advancement of Colored People.'"
+"It is because 22,234 voters in the First District of Alabama were disfranchised, in spite of the fact that they could read and write, because there were not enough of them to enable them, under the laws of Alabama, on which people vote except the "negro" question."
 
-New York, Nov. 2, 1912.
+"How is this for Democracy?" writes a correspondent of THE TIMES. The committee of the Association for the Advancement of Colored People, New York, Nov. 2, 1912.

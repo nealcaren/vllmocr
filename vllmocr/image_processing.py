@@ -150,5 +150,7 @@ def pdf_to_images(pdf_path: str, output_dir: str) -> List[str]:
 
     if not image_paths:
         raise ValueError("No images were generated from the PDF.")
-
+    
+    page_count = len(image_paths)
+    print(f'Found {page_count} pages.')
     return image_paths

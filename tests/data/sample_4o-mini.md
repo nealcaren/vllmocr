@@ -1,100 +1,78 @@
-# THE WOMAN REBEL
+# 'GRANDFATHER CLAUSES.'
 
-**NO GODS NO MASTERS**
+**Prof. Du Bois Tells of Discriminations Favoring Whites**
 
-**VOL. I**  
-**MARCH 1916**  
-**NO. 1**
+To the Editor of the New York Times: 
 
-## THE AIM
+In the article on "Negroes Disfranchised," in THE TIMES of Oct. 80, your special writer says:
 
-This paper will be the champion of all the women who are tired to death of the existing state of affairs.
+> The law prescribes the qualifications of all voters without regard to race, color, or previous condition; but the conditions are so hard that few colored voters can meet the tests required of them and—technically at least—required of all men.
 
-All the dumb and oppressed women of the world feel the need for a voice.
+This is not a fair statement of the case, by the well-known "grandfather clause." 
 
-The purpose of this publication is to give expression to the WOMAN REBEL.
+Ignorant white men have been used to the life-long hardship right to vote that citizens had acquired before the colored voters were registered. 
 
-We shall be a voice in the world of thought.
+Further than that, qualified colored men and registration practically remain a farce of which no one can escape. 
 
-We will endeavor to create a publication which will be the witness of the wish of the women, and will arouse in them the sense of their own worth and strength.
+I know this actually occurs, as illustrated by the following cases: A colored graduate of Harvard, who offered himself for registration in Virginia, writes me: 
 
-The condition of women is still such as to make impossible their being heard in the field of public opinion, even among women themselves.
+> On the proper day I made application to the Registrar of the town of Hampton for registration. The Registrar was a young white man of the poorer class, showing a low degree of intelligence—a salesman, in a hardware store here in town. He handed me a piece of paper and told me to make out my application. This I did in proper form. He read it carefully and then handed me a sheet of paper containing five questions. Those questions asked the manner of election, term of office, and duties of some of the State officials not generally heard of. I answered all of the questions correctly with the exception of one, and that was particularly right; when I handed the paper back to him he looked at it for about a second and then, shaking his head, said: "You can’t register." 
 
-We desire to be the mouthpiece of a new ideal of womanhood, and through this medium we will express the thought of women.
+I asked why, and he replied: "You haven’t answered these questions." I asked which were wrong. 
 
-WOMAN REBEL is not merely a paper; it is the embodiment of the idea which will help women understand their own dignity, and therefore their capacity for development.
+He answered impatiently: "I don’t have to tell you. I said you can’t register, and that settles it."
 
-## THE NEW FEMINISTS
+From Louisiana we learn: 
 
-That splendid group of thinkers is the new feminism.
+> It is firmly understood that the negroes cannot vote in the country parishes of Louisiana. Mr. Emmanuel Parsons of St. Mary’s Parish, Louisiana, is a graduate of Straight University. He is carrying on an undertaking business on his own farm, at $10,000, but he cannot participate in a vote. 
 
-It is not based on the old ideals, merely dressing themselves in modern clothes. They desire to create a new world.
+From North Carolina a friend writes: 
 
-Instead of wasting words, they act.
+> The amendment, as you know, was not adopted for the improvement of the electorate, but rather to keep the negroes from voting—and the opposition among the dominant race and party is almost a greed toward educated Negroes. 
 
-WOMAN REBEL is dedicated to giving sound and reasoned utterances to the ideas of the women who desire something different from the usual.
+In the matter of voting, as toward any others—and these are naturally sensitive and little inclined to court trouble, simply do not register and vote. 
 
-> _To prevent ignorance and keep public opinion on a high level, we ask you to help us._
+I think this element of the race in the State generally pay their poll tax, and at that point their paternalism stops. 
 
-UNIVERSITY OF CALIFORNIA
+The result of the disfranchisement of intelligent property-holding negroes is shown by these figures from Louisiana: 
 
-# THE WOMAN REBEL
+- **White**: 1900—Population: 728,612; 1908—Registered: 152,135
 
-## WHY WAIT? 
-### MARJORY HOWARD
+- **Negro**: 1900—Population: 178,834; 1908—Registered: 1,748
 
-*Editors of The World*:
+Yet the negroes of Louisiana have increased the value of their farms from nine and one-third to twelve and three-quarter millions assessed value for ten years, and despite the worst school system in America have reduced their illiteracy in the same time from 72 to 17 per cent. 
 
-**Are you ready to put out a daring, bold, electric magazine of women’s living and thinking?**
+Your so-called “white folks” think that such a incident works no injury to the Negro. 
 
-*What is it?*
+> The white folks are "up North," and say, "The South has no excuse for voting in this Union." This sounds gay and snappy; but let us for a moment face some plain facts; 
 
-*Why wait?* This essential element of existence is just as vital as the courage to be a person.
+- Minnesota and Alabama each sent nine Congressmen to Washington in 1908. 
 
-*Not so long ago, women were afraid to express their original thoughts.*
+- The First Congressional District in each State votes as follows:
 
-They have been taught to be meek, submissive, and obedient to the rules of society.
+1. **Votes**: 
+    - Pop. 
+        - 1900: 
+        - 1908: 
 
-*But now,* women are beginning to recognize their own originality and emerge from the shadows.
+2. **First Dist. Alabama**: 
+    - 151,724; 
+    - 1,457.
 
-### TO BE A WOMAN REBEL 
-### ELIZABETH KEN
+3. **First Dist. Minnesota**: 
+    - 602,161; 
+    - 35,077.
 
-*Desire means claiming oneself.* 
+How is it that 7,000 voters in Alabama have the same power as 39,000 in Minnesota?
 
-**This does not mean being selfish.**
+Is it because 22,234 voters in the First District of Alabama were black and disfranchised, in spite of the fact that 1,900 of them could read and write; of the remaining 18,000 white voters who were interested enough to go to the polls?
 
-It means embracing your identity without losing the value of others.
+Here is no political question, in Alabama on which people vote except the "negro" question.
 
-People must **learn** to appreciate the nuances of life, rather than attempting to conform to a single standard.
+How is this for Democracy in this blessed "Union"?
 
-> *Your understanding is only as deep as your experiences.*
+W.E.B. DU BOIS, 
 
-## RULERS, JUDGES, SOLDIERS AND HANGMEN
-### ROBERT ELY
+Director of Publicity of the National Association for the Advancement of Colored People.
 
-*It is a hard lesson to grasp.*
-
-The world persists in pushing against the boundaries we think are established.
-
-**What have we learned?** 
-
-*Not all choices lead to genuine fulfillment.*
-
-The essence of real freedom lies in choosing individuality over conformity.
-
-Organized thought is often a structured approach but lacks emotional engagement.
-
-*Therefore,* we must ask ourselves: 
-1. What defines us as individuals?
-2. How do we balance conformity with autonomy?
-
-**The question doesn't end; it only begins.**
-
----
-
-*Organized Issue*
-
-UNIVERSITY OF CALIFORNIA
-
-*Powered by Google*
+New York, Nov. 2, 1912.

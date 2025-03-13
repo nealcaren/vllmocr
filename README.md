@@ -2,7 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/vllmocr.svg)](https://badge.fury.io/py/vllmocr)
 
-`vllmocr` is a command-line tool that performs Optical Character Recognition (OCR) on images and PDFs using Large Language Models (LLMs). It supports multiple LLM providers, including OpenAI, Anthropic, Google, and local models via Ollama.
+`vllmocr` is a command-line tool that performs Optical Character Recognition (OCR) on images and PDFs using Large Language Models (LLMs). The LLM model is prompted to return the complete text in Markdown format. `vllmocr` supports multiple LLM providers, including OpenAI, Anthropic, Google, and local models via Ollama. It was designed to assist with creating text versions of public domain books and historical newspaper articles.
 
 ## Features
 
@@ -42,7 +42,7 @@ pip install vllmocr
 
 ## Usage
 
-`vllmocr` is a simple command-line tool that processes both images and PDFs:
+`vllmocr` is a command-line tool that processes both images and PDFs:
 
 ```bash
 vllmocr <file_path> [options]
@@ -77,6 +77,15 @@ vllmocr scan.jpg -p openai -m gpt-4o --rotate 90
 ```
 
 Running `vllmocr` without arguments will display a help message with usage examples.
+
+## A General Note on LLMs and OCR
+
+In my experience, higher-capacity models consistently deliver superior OCR results. Although `vllmocr` supports Ollama, I haven't found any locally-runnable models that perform adequately on consumer hardware, even on my MacBook Pro with 36 GB of memory.
+
+Most models demonstrate reasonable accuracy, though hallucinations occur most frequently when processing text that begins or ends mid-sentence. Models typically ignore word or sentence fragments at the top of the page while attempting to complete sentences that are cut off at the bottom. Hallucinations also increase when processing blurry or distorted text. Despite how you prompt them, current models remain overconfident in their capacity to decipher text. Additionally, models occasionally modernize archaic spellings or formatting without indication.
+
+A more substantial challenge arises when processing pages with more than a few hundred words, such as full newspaper or magazine pages.  When overwhelmed, models frequently omit significant sections, especially with column-formatted content. To achieve best results, I usually crop the image into smaller, manageable sections and performing OCR on each section individually. This approach dramatically improves accuracy and ensures comprehensive text capture across the entire document.
+
 
 ## Configuration
 
@@ -114,34 +123,3 @@ You can also set API keys using environment variables:
 *   `VLLM_OCR_OPENROUTER_API_KEY`
 
 Environment variables override settings in the configuration file. This is the recommended way to set API keys for security reasons. You can also pass the API key directly via the `--api-key` command-line option, which takes the highest precedence.
-
-## Development
-
-To set up a development environment:
-
-1.  Clone the repository:
-
-    ```bash
-    git clone https://github.com/<your-username>/vllmocr.git
-    cd vllmocr
-    ```
-
-2.  Create and activate a virtual environment (using `uv`):
-
-    ```bash
-    uv venv
-    uv pip install -e .[dev]
-    ```
-
-    This installs the package in editable mode (`-e`) along with development dependencies (like `pytest` and `pytest-mock`).
-
-3.  Run tests:
-
-    ```bash
-    uv pip install pytest pytest-mock  # if not already installed as dev dependencies
-    pytest
-    ```
-
-## License
-
-This project is licensed under the MIT License (see `pyproject.toml` for details).
