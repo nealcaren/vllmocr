@@ -80,6 +80,7 @@ def process_pdf(
             )
             all_text.append(text)
             logging.info(f"Finished processing page {i + 1} of {num_pages}.")
+            print(f"Page {i + 1} processed and returned.")
         return "\n\n".join(all_text)
 
 
