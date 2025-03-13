@@ -80,11 +80,11 @@ Running `vllmocr` without arguments will display a help message with usage examp
 
 ## A General Note on LLMs and OCR
 
-In my experience, higher-capacity models consistently deliver superior OCR results. Although `vllmocr` supports Ollama, I haven't found any locally-runnable models that perform adequately on consumer hardware, even on my MacBook Pro with 36 GB of memory.
+In my experience, only the largest of LLMs are useful for text transcription. Although `vllmocr` supports Ollama, I haven't found any locally-runnable models that perform adequately on my MacBook Pro with 36 GB of memory. 
 
 Most models demonstrate reasonable accuracy, though hallucinations occur most frequently when processing text that begins or ends mid-sentence. Models typically ignore word or sentence fragments at the top of the page while attempting to complete sentences that are cut off at the bottom. Hallucinations also increase when processing blurry or distorted text. Despite how you prompt them, current models remain overconfident in their capacity to decipher text. Additionally, models occasionally modernize archaic spellings or formatting without indication.
 
-A more substantial challenge arises when processing pages with more than a few hundred words, such as full newspaper or magazine pages.  When overwhelmed, models frequently omit significant sections, especially with column-formatted content. To achieve best results, I usually crop the image into smaller, manageable sections and performing OCR on each section individually. This approach dramatically improves accuracy and ensures comprehensive text capture across the entire document.
+A more substantial challenge arises when processing pages with more than a few hundred words, such as full newspaper or magazine pages. The bigger the model the more words they are able to output, and this doesn't seem to have anything to do with context window size or output restrictions, just parameters. When overwhelmed, models frequently omit significant sections, especially with column-formatted content. To achieve best results, I usually crop the image into smaller, manageable sections and performing OCR on each section individually. This approach dramatically improves accuracy and ensures comprehensive text capture across the entire document.
 
 
 ## Configuration
