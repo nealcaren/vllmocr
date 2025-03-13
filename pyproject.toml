@@ -18,8 +18,8 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-"opencv-python",
-"anthropic",
+ "opencv-python",
+ "anthropic",
  "pytest",
  "pytest-mock",
  "openai",
