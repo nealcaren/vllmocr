@@ -67,31 +67,3 @@ def _transcribe_with_anthropic(image_path: str, api_key: str, prompt: str, model
         handle_error(f"Anthropic rate limit exceeded: {e}", e)
     except anthropic.APIStatusError as e:
         handle_error(f"Anthropic API status error: {e}", e)
-    except Exception as e:
-        handle_error(f"Error during Anthropic transcription", e)
-
-
-
-def _post_process_anthropic(text: str) -> str:
-    """
-    Applies post-processing to Anthropic output.
-        
-    Extract the text between <markdown_text> tags.
-    If the tags aren't present, return the entire text.
-    
-    Args:
-        text (str): The input text that may contain markdown text within tags
-        
-    Returns:
-        str: The extracted markdown text or the original text if tags aren't found
-    """
-    # Look for text between <markdown_text> and </markdown_text> tags
-    markdown_pattern = re.compile(r'<markdown_text>(.*?)</markdown_text>', re.DOTALL)
-    match = markdown_pattern.search(text)
-    
-    if match:
-        # Return just the content within the tags
-        return match.group(1).strip()
-    else:
-        # If tags aren't found, return the original text
-        return text.strip()
