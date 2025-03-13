@@ -33,7 +33,7 @@ def process_single_image(image_path: str, provider: Optional[str], config: AppCo
                 config.image_processing_settings["rotation"],
                 config.debug
             )
-            result = transcribe_image(preprocessed_path, provider, config, model, custom_prompt)
+            result = transcribe_image(preprocessed_path, provider, config, model, custom_prompt, api_key)
             return result
         except Exception as e:
             logging.error(f"TRACE: Error in process_single_image: {str(e)}")
@@ -41,7 +41,7 @@ def process_single_image(image_path: str, provider: Optional[str], config: AppCo
             logging.error(f"TRACE: Traceback: {traceback.format_exc()}")
             raise
 
-def process_pdf(pdf_path: str, provider: Optional[str], config: AppConfig, model: Optional[str] = None, custom_prompt: Optional[str] = None) -> str:
+def process_pdf(pdf_path: str, provider: Optional[str], config: AppConfig, model: Optional[str] = None, custom_prompt: Optional[str] = None, api_key: Optional[str] = None) -> str:
     """Processes a PDF and returns the transcribed text."""
     with tempfile.TemporaryDirectory() as temp_dir:
         if provider is None and model:
@@ -93,6 +93,7 @@ def main():
     config.image_processing_settings["rotation"] = args.rotate
     config.debug = args.debug
     input_file = args.input
+    api_key = args.api_key
 
     if args.provider is None and args.model:
         if args.model in ("haiku", "sonnet", "anthropic", "claude"):
