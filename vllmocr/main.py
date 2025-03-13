@@ -99,7 +99,7 @@ def main():
     """Main function to handle command-line arguments and processing."""
     parser = argparse.ArgumentParser(description="OCR processing for PDFs and images.")
     parser.add_argument(
-        "-i", "--input", type=str, required=True, help="Input file (PDF or image)."
+        "-i", "--input", type=str, nargs='?', help="Input file (PDF or image)."
     )
     parser.add_argument(
         "-o", "--output", type=str, help="Output file name (default: auto-generated)."
