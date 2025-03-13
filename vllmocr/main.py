@@ -11,10 +11,21 @@ from .config import load_config, AppConfig
 from .utils import setup_logging, handle_error, validate_image_file
 
 
+import argparse
+import os
+import sys
+import tempfile
+from typing import List, Optional
+
+from .image_processing import preprocess_image, pdf_to_images, sanitize_filename, determine_output_format
+from .llm_interface import transcribe_image
+from .config import load_config, AppConfig
+from .utils import setup_logging, handle_error, validate_image_file
+import logging
+
+
 def process_single_image(image_path: str, provider: Optional[str], config: AppConfig, model: Optional[str] = None, custom_prompt: Optional[str] = None, api_key: Optional[str] = None) -> str:
     """Processes a single image and returns the transcribed text."""
-    import logging
-    logging.info(f"TRACE: Entering process_single_image with image_path={image_path}, provider={provider}, model={model}, custom_prompt={custom_prompt}")
 
     with tempfile.TemporaryDirectory() as temp_dir:
         if provider is None and model:
@@ -33,12 +44,15 @@ def process_single_image(image_path: str, provider: Optional[str], config: AppCo
                 config.image_processing_settings["rotation"],
                 config.debug
             )
+            model_used = model if model else config.get_default_model(provider)
+            logging.info(f"Transcribing image from {image_path} using the {model_used} model from {provider}.")
             result = transcribe_image(preprocessed_path, provider, config, model, custom_prompt, api_key)
             return result
         except Exception as e:
-            logging.error(f"TRACE: Error in process_single_image: {str(e)}")
-            import traceback
-            logging.error(f"TRACE: Traceback: {traceback.format_exc()}")
+            if config.debug:
+                logging.error(f"TRACE: Error in process_single_image: {str(e)}")
+                import traceback
+                logging.error(f"TRACE: Traceback: {traceback.format_exc()}")
             raise
 
 def process_pdf(pdf_path: str, provider: Optional[str], config: AppConfig, model: Optional[str] = None, custom_prompt: Optional[str] = None, api_key: Optional[str] = None) -> str:
@@ -49,16 +63,19 @@ def process_pdf(pdf_path: str, provider: Optional[str], config: AppConfig, model
                 provider = "anthropic"
             elif model in ("4o-mini", "gpt-4o"):
                 provider = "openai"
-
         try:
             image_paths = pdf_to_images(pdf_path, temp_dir)
         except ValueError as e:
             handle_error(f"Error processing PDF {pdf_path}: {e}")
             raise
         all_text = []
-        for image_path in image_paths:
+        num_pages = len(image_paths)
+        model_used = model if model else config.get_default_model(provider)
+        logging.info(f"Transcribing {num_pages} pages from {pdf_path} using the {model_used} model from {provider}.")
+        for i, image_path in enumerate(image_paths):
             text = process_single_image(image_path, provider, config, model, custom_prompt, api_key)
             all_text.append(text)
+            logging.info(f"Finished processing page {i+1} of {num_pages}.")
         return "\n\n".join(all_text)
 
 def main():
@@ -83,12 +100,7 @@ def main():
         log_level = "DEBUG"
     setup_logging(log_level)
 
-    import logging
-    logging.info("TRACE: Starting main function")
-    logging.info(f"TRACE: Command line args: {args}")
-
     config = load_config()
-    logging.info("TRACE: Config loaded")
 
     config.image_processing_settings["rotation"] = args.rotate
     config.debug = args.debug
