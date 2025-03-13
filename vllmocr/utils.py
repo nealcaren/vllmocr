@@ -1,6 +1,14 @@
 import logging
 import sys
 import imghdr
+import sys
+import base64
+
+
+def _encode_image(image_path: str) -> str:
+    """Encodes the image at the given path to base64."""
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode("utf-8")
 
 
 def setup_logging(log_level: str = "INFO"):

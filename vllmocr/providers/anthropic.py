@@ -1,14 +1,12 @@
-
 import logging
 import os
 
 import anthropic
 
-from vllmocr.utils import handle_error
-from vllmocr.llm_interface import _encode_image
+from vllmocr.utils import handle_error, _encode_image
 
 
-OCR_PROMPT = '''# Image Transcription Guidelines
+OCR_PROMPT = """# Image Transcription Guidelines
 
 You are a text transcriptionist who converts image-based text into Markdown format. Your role is to extract and format text, not to analyze images themselves.
 
@@ -30,10 +28,16 @@ You are a text transcriptionist who converts image-based text into Markdown form
 - Then present the complete Markdown transcription in <markdown_text> tags
 
 Always include ALL text from the page without summarizing or using placeholders.
-'''
+"""
 
 
-def _transcribe_with_anthropic(image_path: str, api_key: str, prompt: str, model: str = "claude-3-haiku-20240307", debug: bool = False) -> str:
+def _transcribe_with_anthropic(
+    image_path: str,
+    api_key: str,
+    prompt: str,
+    model: str = "claude-3-haiku-20240307",
+    debug: bool = False,
+) -> str:
     """Transcribes the text in the given image using Anthropic."""
     if debug:
         logging.info(f"Transcribing with Anthropic, model: {model}")
@@ -45,26 +49,30 @@ def _transcribe_with_anthropic(image_path: str, api_key: str, prompt: str, model
             image_type = "jpeg"
         media_type = f"image/{image_type}"
 
-        response = client.messages.create(
-            model=model,
-            max_tokens=4096,
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": OCR_PROMPT},
-                        {
-                            "type": "image",
-                            "source": {
-                                "type": "base64",
-                                "media_type": media_type,
-                                "data": encoded_image,
+        response = (
+            client.messages.create(
+                model=model,
+                max_tokens=4096,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": OCR_PROMPT},
+                            {
+                                "type": "image",
+                                "source": {
+                                    "type": "base64",
+                                    "media_type": media_type,
+                                    "data": encoded_image,
+                                },
                             },
-                        },
-                    ],
-                }
-            ],
-        ).content[0].text
+                        ],
+                    }
+                ],
+            )
+            .content[0]
+            .text
+        )
         return response
 
     except anthropic.APIConnectionError as e:
@@ -73,3 +81,28 @@ def _transcribe_with_anthropic(image_path: str, api_key: str, prompt: str, model
         handle_error(f"Anthropic rate limit exceeded: {e}", e)
     except anthropic.APIStatusError as e:
         handle_error(f"Anthropic API status error: {e}", e)
+
+
+def _post_process_anthropic(text: str) -> str:
+    """
+    Applies post-processing to Anthropic output.
+
+    Extract the text between <markdown_text> tags.
+    If the tags aren't present, return the entire text.
+
+    Args:
+        text (str): The input text that may contain markdown text within tags
+
+    Returns:
+        str: The extracted markdown text or the original text if tags aren't found
+    """
+    # Look for text between <markdown_text> and </markdown_text> tags
+    markdown_pattern = re.compile(r"<markdown_text>(.*?)</markdown_text>", re.DOTALL)
+    match = markdown_pattern.search(text)
+
+    if match:
+        # Return just the content within the tags
+        return match.group(1).strip()
+    else:
+        # If tags aren't found, return the original text
+        return text.strip()

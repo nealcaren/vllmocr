@@ -1,6 +1,6 @@
 DEFAULT_OCR_PROMPT = "Extract all text from the image and format it as Markdown."
 
-ANTHROPIC_OCR_PROMPT = '''# Image Transcription Guidelines
+ANTHROPIC_OCR_PROMPT = """# Image Transcription Guidelines
 
 You are a text transcriptionist who converts image-based text into Markdown format. Your role is to extract and format text, not to analyze images themselves.
 
@@ -22,9 +22,9 @@ You are a text transcriptionist who converts image-based text into Markdown form
 - Then present the complete Markdown transcription in <markdown_text> tags
 
 Always include ALL text from the page without summarizing or using placeholders.
-'''
+"""
 
-OPENAI_OCR_PROMPT = '''# Image Transcription Guidelines
+OPENAI_OCR_PROMPT = """# Image Transcription Guidelines
 
 You are a text transcriptionist who converts image-based text into Markdown format. Your role is to extract and format text, not to analyze images themselves.
 
@@ -46,7 +46,7 @@ You are a text transcriptionist who converts image-based text into Markdown form
    - Then present the complete Markdown transcription in ```md code blocks
 
 Always include ALL text from the page without summarizing or using placeholders.
-'''
+"""
 
 
 PROVIDER_PROMPTS = {
@@ -55,6 +55,7 @@ PROVIDER_PROMPTS = {
     "google": DEFAULT_OCR_PROMPT,
     "ollama": DEFAULT_OCR_PROMPT,
 }
+
 
 def get_prompt(provider: str, custom_prompt: str = None) -> str:
     """Retrieves the appropriate prompt for the given provider.
