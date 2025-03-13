@@ -222,20 +222,9 @@ def transcribe_image(
         ValueError: If the provider is not supported or if the model is required but not provided.
     """
 
-    # Get the full model name based on the alias or use the provided model
-    full_model_name = None
-    if model:
-        # Use the provided model directly, only trying to get from config if no model is provided
-        full_model_name = model
-        if model == "haiku":
-            full_model_name = "claude-3-haiku-latest"
-        elif model == "sonnet":
-            full_model_name = "claude-3-sonnet-latest"
-        elif model == "4o-mini":
-            full_model_name = "gpt-4o-mini"
-        elif model == "gpt-4o":
-            full_model_name = "gpt-4o"
-    else:
+    # Use the provided model directly, only getting default if model is None
+    full_model_name = model
+    if full_model_name is None:
         try:
             full_model_name = config.get_default_model(provider)
         except Exception as e:
@@ -243,6 +232,7 @@ def transcribe_image(
             raise ValueError(
                 f"No model specified and couldn't get default for provider {provider}"
             )
+
 
     api_key = get_api_key(config, provider)
     if not api_key and provider != "ollama":
