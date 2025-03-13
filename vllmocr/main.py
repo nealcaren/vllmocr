@@ -131,10 +131,19 @@ def main():
     args = parser.parse_args()
 
     if args.input is None:
-        print("Provide a command to run with `uv`.")
-        print("\nThe following tools are installed:")
-        print("- vllmocr v0.3.8")
-        print("See `uv --help` for more information.")
+        print("Welcome to vllmocr!")
+        print("This tool allows you to perform OCR on PDFs and images.")
+        print("Usage: python -m vllmocr.main [OPTIONS] <INPUT>")
+        print("\nThe following options are available:")
+        print("  -o, --output       Output file name (default: auto-generated).")
+        print("  -p, --provider     LLM provider ('openai', 'anthropic', 'google', 'ollama', 'openrouter').")
+        print("  -m, --model        Model alias to use (e.g., 'haiku', 'gpt-4o', 'llama3').")
+        print("  -c, --custom-prompt Custom prompt to use for the LLM.")
+        print("  --api-key          API key for the LLM provider.")
+        print("  --rotate           Manually rotate image by specified degrees (0, 90, 180, or 270).")
+        print("  --debug            Save intermediate processing steps for debugging.")
+        print("  --log-level        Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).")
+        print("\nExample: python -m vllmocr.main input.pdf -p openai -m gpt-4o")
         sys.exit(0)
 
     log_level = args.log_level.upper()
