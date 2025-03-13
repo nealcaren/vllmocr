@@ -15,6 +15,10 @@ from .config import AppConfig, get_api_key, get_default_model
 from .utils import handle_error, _encode_image
 from .prompts import get_prompt
 from .providers.anthropic import _transcribe_with_anthropic, _post_process_anthropic
+from .providers.openrouter import (
+    _transcribe_with_openrouter,
+    _post_process_openrouter,
+)
 
 
 def _transcribe_with_openai(
