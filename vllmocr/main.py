@@ -130,6 +130,13 @@ def main():
     parser.set_defaults(provider="anthropic", model="claude-3-5-haiku-latest")
     args = parser.parse_args()
 
+    if args.input is None:
+        print("Provide a command to run with `uv`.")
+        print("\nThe following tools are installed:")
+        print("- vllmocr v0.3.8")
+        print("See `uv --help` for more information.")
+        sys.exit(0)
+
     log_level = args.log_level.upper()
     if args.debug:
         log_level = "DEBUG"
