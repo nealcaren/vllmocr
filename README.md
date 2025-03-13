@@ -51,6 +51,7 @@ vllmocr image <image_path> [options]
 
 *   `--provider`:  The LLM provider to use (openai, anthropic, google, ollama).  Defaults to `openai`.
 *   `--model`: The specific model to use (e.g., `gpt-4o`, `haiku`, `gemini-1.5-pro-002`, `llama3`).  Defaults to the provider's default model.
+*   `--api-key`: The API key for the LLM provider. Overrides API keys from the config file or environment variables.
 *    `--config`: Path to a TOML configuration file.
 *   `--help`: Show the help message and exit.
 
@@ -68,7 +69,7 @@ vllmocr pdf <pdf_path> [options]
 
 *   `<pdf_path>`: The path to the PDF file.
 
-**Options:** (Same as `image` subcommand)
+**Options:** (Same as `image` subcommand, including `--api-key`)
 
 **Example:**
 
@@ -110,7 +111,7 @@ You can also set API keys using environment variables:
 *   `VLLM_OCR_ANTHROPIC_API_KEY`
 *   `VLLM_OCR_GOOGLE_API_KEY`
 
-Environment variables override settings in the configuration file.  This is the recommended way to set API keys for security reasons.
+Environment variables override settings in the configuration file.  This is the recommended way to set API keys for security reasons. You can also pass the API key directly via the `--api-key` command-line option, which takes the highest precedence.
 
 ## Development
 
