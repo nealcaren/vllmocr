@@ -139,6 +139,7 @@ def main():
         default="INFO",
         help="Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
     )
+    parser.set_defaults(provider="anthropic", model="claude-3-haiku-20240307")
     args = parser.parse_args()
 
     log_level = args.log_level.upper()
@@ -147,24 +148,14 @@ def main():
     setup_logging(log_level)
 
     config = load_config()
-
     config.image_processing_settings["rotation"] = args.rotate
     config.debug = args.debug
     input_file = args.input
     api_key = args.api_key
 
-    if args.provider is None and args.model:
-        if args.model in ("haiku", "sonnet", "anthropic", "claude"):
-            args.provider = "anthropic"
-        elif args.model in ("4o-mini", "gpt-4o"):
-            args.provider = "openai"
-
-    if args.provider is None:
-        parser.error(
-            "the following arguments are required: -p/--provider OR -m/--model with a known provider"
-        )
-
     provider = args.provider
+    model = args.model
+
 
     try:
         if not os.path.exists(input_file):
