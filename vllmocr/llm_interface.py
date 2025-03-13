@@ -15,6 +15,7 @@ from .config import AppConfig, get_api_key, get_default_model
 from .utils import handle_error, _encode_image
 from .prompts import get_prompt
 from .providers.anthropic import _transcribe_with_anthropic, _post_process_anthropic
+from .providers.openrouter import _transcribe_with_openrouter, _post_process_openrouter
 
 
 def _transcribe_with_openai(
@@ -209,7 +210,7 @@ def transcribe_image(
 
     Args:
         image_path: Path to the image.
-        provider: The LLM provider ('openai', 'anthropic', 'google', 'ollama').
+        provider: The LLM provider ('openai', 'anthropic', 'google', 'ollama', 'openrouter').
         config: The application configuration.
         model: The specific model to use (optional).
         custom_prompt: Optional custom prompt to use.
@@ -260,5 +261,10 @@ def transcribe_image(
             image_path, prompt, model=full_model_name, debug=debug
         )
         return _post_process_ollama(text)
+    elif provider == "openrouter":
+        text = _transcribe_with_openrouter(
+            image_path, prompt, model=full_model_name, debug=debug
+        )
+        return _post_process_openrouter(text)
     else:
         handle_error(f"Unsupported LLM provider: {provider}")
