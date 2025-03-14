@@ -75,9 +75,12 @@ def _transcribe_with_google(
         logging.info(f"Transcribing with Google, model: {model}")
     try:
         client = genai.Client(api_key=api_key)
+        # Explicitly handle PNG and convert jpg/jpeg to lowercase
         image_type = os.path.splitext(image_path)[1][1:].lower()
         if image_type == "jpg":
             image_type = "jpeg"
+        elif image_type == "png":
+            image_type = "png"  # Explicitly mark PNG handling
 
         response = client.models.generate_content(
             model=model,
