@@ -16,13 +16,7 @@ def sanitize_filename(name: str) -> str:
 
 def determine_output_format(image_path: str, provider: str) -> str:
     """Determines the correct output format based on provider and input image type."""
-    if provider is None:
-        provider = "default"  # Set a default to avoid errors
-
-    if provider == "openai":
-        return "jpg"  # OpenAI prefers JPEG
-    else:
-        return "png"  # Default to png for safety
+    return "png"  # Always use PNG to minimize lossy compression
 
 
 def preprocess_image(
@@ -92,10 +86,8 @@ def preprocess_image(
                 denoised,
             )
 
-        if output_path.lower().endswith(".jpg"):
-            cv2.imwrite(output_path, binary, [cv2.IMWRITE_JPEG_QUALITY, 95])
-        else:
-            cv2.imwrite(output_path, binary)
+        # Always save as PNG with maximum compression to reduce file size
+        cv2.imwrite(output_path, binary, [cv2.IMWRITE_PNG_COMPRESSION, 9])
         return output_path
     except Exception as e:
         if debug:
