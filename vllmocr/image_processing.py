@@ -47,14 +47,14 @@ def preprocess_image(
             gray = image.copy()
 
         # Enhance contrast
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-        enhanced = clahe.apply(gray)
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(16, 16))
+        contrast_enhanced = clahe.apply(gray)
 
         # Apply a lighter blur to preserve details
-        blurred = cv2.GaussianBlur(enhanced, (3, 3), 0)
+        blurred = cv2.GaussianBlur(contrast_enhanced, (1, 1), 0)
 
         # Denoise with lower strength to preserve character details
-        denoised = cv2.fastNlMeansDenoising(blurred, h=7)
+        denoised = cv2.fastNlMeansDenoising(blurred, h=5, templateWindowSize=7, searchWindowSize=21)
 
         # Apply manual rotation if specified
         if rotation in {90, 180, 270}:
