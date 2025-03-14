@@ -44,7 +44,8 @@ def _transcribe_with_openai(
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
+                                # Dynamically determine image type from file extension
+                                "url": f"data:image/{os.path.splitext(image_path)[1][1:].lower()};base64,{base64_image}"
                             },
                         },
                     ],
