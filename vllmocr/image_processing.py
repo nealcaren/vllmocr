@@ -75,7 +75,7 @@ def preprocess_image(
             )
             cv2.imwrite(
                 os.path.join(debug_dir, f"{os.path.basename(image_path)}_enhanced.png"),
-                enhanced,
+                contrast_enhanced,
             )
             cv2.imwrite(
                 os.path.join(debug_dir, f"{os.path.basename(image_path)}_blurred.png"),
