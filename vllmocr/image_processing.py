@@ -60,9 +60,10 @@ def preprocess_image(
                 }[rotation],
             )
 
-        binary = cv2.adaptiveThreshold(
-            denoised, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
-        )
+        # Removed binarization step:
+        # binary = cv2.adaptiveThreshold(
+        #     denoised, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
+        # )
 
         # Save intermediate results if debug is enabled
         if debug:
@@ -81,9 +82,9 @@ def preprocess_image(
                 os.path.join(debug_dir, f"{os.path.basename(image_path)}_denoised.png"),
                 denoised,
             )
-        os.path.join("/Users/nealcaren/Dropbox/", f"{os.path.basename(image_path)}_denoised.png"),
-        # Always save as PNG with maximum compression to reduce file size
-        cv2.imwrite(output_path, binary, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+        os.path.join("/Users/nealcaren/Dropbox/", f"{os.path.basename(image_path)}_denoised.png"), # TODO: This looks like a leftover debug path, should it be removed?
+        # Always save the denoised grayscale image as PNG with maximum compression
+        cv2.imwrite(output_path, denoised, [cv2.IMWRITE_PNG_COMPRESSION, 9])
         return output_path
     except Exception as e:
         if debug:
