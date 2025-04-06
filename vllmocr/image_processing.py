@@ -165,14 +165,41 @@ def process_page(page, i, output_dir, dpi=DEFAULT_PDF_DPI):
 
             logging.info(f"Extracted original image from page {i + 1} in {img_ext} format.")
 
-        else:  # Render the page as an image, capped at effective_dpi
-            zoom = effective_dpi / 72  # Scale factor based on capped DPI
-            mat = fitz.Matrix(zoom, zoom)  # Create a transformation matrix
+        else:  # Render the page as an image, capped at effective_dpi and max pixel dimension
+            MAX_DIMENSION_PIXELS = 6000 # Max pixels for width or height to prevent huge images from bad PDF metadata
+
+            page_width_pt = page.rect.width
+            page_height_pt = page.rect.height
+
+            # Calculate potential pixel dimensions at the requested effective_dpi
+            target_width_px = page_width_pt * (effective_dpi / 72)
+            target_height_px = page_height_pt * (effective_dpi / 72)
+
+            final_dpi = effective_dpi # Start with the capped DPI
+
+            # Check if rendering at effective_dpi exceeds the max pixel limit
+            if max(target_width_px, target_height_px) > MAX_DIMENSION_PIXELS:
+                # Calculate a scaling factor to fit within the limit
+                scaling_factor = MAX_DIMENSION_PIXELS / max(target_width_px, target_height_px)
+                # Adjust the DPI based on the scaling factor
+                adjusted_dpi = effective_dpi * scaling_factor
+                # Ensure DPI doesn't go below a minimum reasonable value (e.g., 72)
+                final_dpi = max(72, adjusted_dpi)
+                logging.warning(
+                    f"Page {i + 1}: Original dimensions ({page_width_pt:.0f}x{page_height_pt:.0f} pt) "
+                    f"at {effective_dpi} DPI would exceed max pixels ({MAX_DIMENSION_PIXELS}). "
+                    f"Adjusting render DPI to {final_dpi:.0f}."
+                )
+
+            # Calculate the final zoom factor based on the potentially adjusted DPI
+            zoom = final_dpi / 72
+            mat = fitz.Matrix(zoom, zoom)  # Create the transformation matrix
             pixmap = page.get_pixmap(matrix=mat, alpha=False)  # Render with the matrix
 
-            pixmap.save(str(temp_image_path))  # Save rendered image (ensure path is string)
+            pixmap.save(str(temp_image_path))  # Save rendered image
 
-            logging.info(f"Rendered page {i + 1} at {effective_dpi} DPI to {temp_image_path.name}.")
+            # Log the actual DPI used for rendering
+            logging.info(f"Rendered page {i + 1} at {final_dpi:.0f} effective DPI to {temp_image_path.name}.")
 
         return str(temp_image_path)
 
