@@ -2,6 +2,7 @@ import logging
 import os
 import re
 from typing import List
+from pathlib import Path
 
 import cv2
 import pymupdf as fitz  # PyMuPDF
@@ -85,7 +86,7 @@ def preprocess_image(
                 os.path.join(debug_dir, f"{os.path.basename(image_path)}_denoised.png"),
                 denoised,
             )
-
+        os.path.join("/Users/nealcaren/Dropbox/", f"{os.path.basename(image_path)}_denoised.png"),
         # Always save as PNG with maximum compression to reduce file size
         cv2.imwrite(output_path, binary, [cv2.IMWRITE_PNG_COMPRESSION, 9])
         return output_path
@@ -98,51 +99,59 @@ def preprocess_image(
         raise
 
 
+from concurrent.futures import ThreadPoolExecutor
 
-def pdf_to_images(pdf_path: str, output_dir: str) -> List[str]:
-    """Converts a PDF file into a series of images (one per page).
-    If a page is a single image, it extracts the original image instead.
-    """
+def process_page(page, i, output_dir, dpi=300):
+    """Process a single PDF page to extract or render images with higher DPI."""
+    try:
+        img_list = page.get_images(full=True)
+        temp_image_path = Path(output_dir) / f"page_{i + 1}.png"
 
+        if len(img_list) == 1:  # Extract the original image directly if present
+            xref = img_list[0][0]  # XREF number of the image
+            img = page.parent.extract_image(xref)
+            img_ext = img["ext"]  # Image format (png, jpg, etc.)
+            temp_image_path = temp_image_path.with_suffix(f".{img_ext}")
+
+            with temp_image_path.open("wb") as img_file:
+                img_file.write(img["image"])
+
+            logging.info(f"Extracted original image from page {i + 1} in {img_ext} format.")
+
+        else:  # Render the page as an image at high DPI
+            zoom = dpi / 72  # Scale factor (default is 72 DPI)
+            mat = fitz.Matrix(zoom, zoom)  # Create a transformation matrix
+            pixmap = page.get_pixmap(matrix=mat, alpha=False)  # Render with the matrix
+
+            pixmap.save(temp_image_path)  # Save rendered image
+
+            logging.info(f"Rendered page {i + 1} at {dpi} DPI.")
+
+        return str(temp_image_path)
+
+    except Exception as e:
+        logging.error(f"Error processing page {i + 1}: {e}")
+        return None
+
+def pdf_to_images(pdf_path: str, output_dir: str, dpi=300) -> list:
+    """Converts a PDF file into a series of high-resolution images."""
     try:
         doc = fitz.open(pdf_path)
     except Exception as e:
         logging.error(f"Error opening PDF {pdf_path}: {e}")
         raise
 
-    image_paths = []
-
     if len(doc) == 0:
         raise ValueError("PDF has no pages.")
 
-    for i, page in enumerate(doc):
-        img_list = page.get_images(full=True)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(exist_ok=True, parents=True)
 
-        if len(img_list) == 1:  # If there's exactly one image, extract it
-            xref = img_list[0][0]  # XREF number of the image
-            img = doc.extract_image(xref)
-            img_ext = img["ext"]  # Image format (png, jpg, etc.)
-            img_data = img["image"]
-
-            temp_image_path = os.path.join(output_dir, f"page_{i + 1}.{img_ext}")
-            with open(temp_image_path, "wb") as img_file:
-                img_file.write(img_data)
-
-            logging.info(f"Extracted original image from page {i + 1}")
-        else:
-            temp_image_path = os.path.join(output_dir, f"page_{i + 1}.png")
-            try:
-                pixmap = page.get_pixmap()
-                pixmap.save(temp_image_path)  # Save rendered image
-            except Exception as e:
-                logging.error(f"Error processing page {i + 1}: {e}")
-                continue  # Skip problematic pages
-
-        image_paths.append(temp_image_path)
+    with ThreadPoolExecutor() as executor:
+        image_paths = list(filter(None, executor.map(lambda p: process_page(p[1], p[0], output_dir, dpi), enumerate(doc))))
 
     if not image_paths:
         raise ValueError("No images were generated from the PDF.")
-    
-    page_count = len(image_paths)
-    print(f'Found {page_count} pages.')
+    print(image_paths)
+    print(f"Extracted {len(image_paths)} pages at {dpi} DPI.")
     return image_paths
