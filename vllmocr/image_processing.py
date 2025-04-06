@@ -144,7 +144,7 @@ def preprocess_image(
 
 from concurrent.futures import ThreadPoolExecutor
 
-DEFAULT_PDF_DPI = 600
+DEFAULT_PDF_DPI = 300 # Changed default DPI from 600 to 300
 
 def process_page(page, i, output_dir, dpi=DEFAULT_PDF_DPI):
     """Process a single PDF page to extract or render images with higher DPI."""
@@ -168,9 +168,9 @@ def process_page(page, i, output_dir, dpi=DEFAULT_PDF_DPI):
             mat = fitz.Matrix(zoom, zoom)  # Create a transformation matrix
             pixmap = page.get_pixmap(matrix=mat, alpha=False)  # Render with the matrix
 
-            pixmap.save(temp_image_path)  # Save rendered image
+            pixmap.save(str(temp_image_path))  # Save rendered image (ensure path is string)
 
-            logging.info(f"Rendered page {i + 1} at {dpi} DPI.")
+            logging.info(f"Rendered page {i + 1} at {dpi} DPI to {temp_image_path.name}.")
 
         return str(temp_image_path)
 
@@ -197,8 +197,8 @@ def pdf_to_images(pdf_path: str, output_dir: str, dpi=DEFAULT_PDF_DPI) -> list:
 
     if not image_paths:
         raise ValueError("No images were generated from the PDF.")
-    print(image_paths)
-    print(f"Extracted {len(image_paths)} pages at {dpi} DPI.")
+    # Removed print(image_paths) - too verbose for normal operation
+    logging.info(f"Processed {len(image_paths)} pages from PDF. Pages requiring rendering were processed at {dpi} DPI.")
     return image_paths
 
 
