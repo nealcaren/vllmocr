@@ -65,7 +65,7 @@ def _transcribe_with_google(
     image_path: str,
     api_key: str,
     prompt: str,
-    model: str = "gemini-1.5-pro-002",
+    model: str = "gemini-2.0-flash-lite",
     debug: bool = False,
 ) -> str:
     """Transcribes the text in the given image using Google Gemini.
@@ -192,8 +192,26 @@ def _post_process_openai(text: str) -> str:
 
 
 def _post_process_google(text: str) -> str:
-    """Applies post-processing to Google Gemini output."""
-    return text.strip()
+    """Applies post-processing to Google Gemini output.
+        Extract the text between ```md and ``` delimiters.
+    If the delimiters aren't present, return the entire text.
+
+    Args:
+        text (str): The input text that may contain markdown text within delimiters
+
+    Returns:
+        str: The extracted markdown text or the original text if delimiters aren't found
+    """
+    # Look for text between ```md and ``` delimiters
+    markdown_pattern = re.compile(r"```md\s*(.*?)\s*```", re.DOTALL)
+    match = markdown_pattern.search(text)
+
+    if match:
+        # Return just the content within the delimiters
+        return match.group(1).strip()
+    else:
+        # If delimiters aren't found, return the original text
+        return text.strip()
 
 
 def _post_process_ollama(text: str) -> str:

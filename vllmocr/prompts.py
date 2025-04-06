@@ -9,7 +9,7 @@ You are a text transcriptionist who converts image-based text into Markdown form
 2. Format the extracted text using Markdown conventions:
    - Use # for headings (# for main, ## for sub-headings, etc.)
    - Separate paragraphs with blank lines
-   - Place each paragraph on its own line.
+   - Put each paragraph in a single continuous line by removing unnecessary line breaks, while keeping natural paragraph breaks intact.
    - Use - or * for bullet lists, 1. for numbered lists
    - Use *italic* and **bold** for emphasized text
    - Use > for blockquotes.
@@ -32,7 +32,8 @@ You are a text transcriptionist who converts image-based text into Markdown form
 1. Extract ALL visible text from the page (no summarizing or abbreviation)
 2. Format the extracted text using Markdown conventions:
    - Use # for headings (# for main, ## for sub-headings, etc.)
-   - Separate paragraphs with blank lines
+   - Separate paragraphs with blank lines.
+   - Put each paragraph in a single continuous line by removing unnecessary line breaks, while keeping natural paragraph breaks intact.
    - Use - or * for bullet lists, 1. for numbered lists
    - Use *italic* and **bold** for emphasized text
    - Use > for blockquotes
@@ -52,7 +53,7 @@ Always include ALL text from the page without summarizing or using placeholders.
 PROVIDER_PROMPTS = {
     "openai": OPENAI_OCR_PROMPT,
     "anthropic": ANTHROPIC_OCR_PROMPT,
-    "google": DEFAULT_OCR_PROMPT,
+    "google": OPENAI_OCR_PROMPT,
     "ollama": DEFAULT_OCR_PROMPT,
     "openrouter": DEFAULT_OCR_PROMPT, #  Can customize later
 }
