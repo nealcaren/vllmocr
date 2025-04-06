@@ -60,11 +60,11 @@ def process_single_image(
     except Exception as e:
         # Keep existing debug logging for transcription errors
         if config.debug:
-                logging.error(f"TRACE: Error in process_single_image: {str(e)}")
-                import traceback
+            logging.error(f"TRACE: Error in process_single_image: {str(e)}")
+            import traceback
 
-                logging.error(f"TRACE: Traceback: {traceback.format_exc()}")
-            raise
+            logging.error(f"TRACE: Traceback: {traceback.format_exc()}")
+        raise # This should be aligned with the 'if' statement, inside the 'except' block
 
 
 def process_pdf(
