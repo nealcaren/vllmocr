@@ -14,7 +14,7 @@
     *   **Ollama:**  (Local models) Llama3, Llama3.2-vision, MiniCPM, and other models supported by Ollama.
     *   **OpenRouter:** Access to various models through the OpenRouter API
 *   **Configurable:**  Settings, including the LLM provider and model, can be adjusted via a configuration file or environment variables.
-*   **Image Preprocessing:** Includes optional image rotation for improved OCR accuracy.
+*   **Image Preprocessing:** Includes image resizing and grayscale conversion to meet API requirements.
 
 ## Installation
 
@@ -57,7 +57,6 @@ vllmocr <file_path> [options]
 *   `-m, --model`: The specific model to use (e.g., `gpt-4o`, `haiku`, `llama3.2-vision`, `google/gemma-3-27b-it`). Defaults to `claude-3-5-haiku-latest`.
 *   `-c, --custom-prompt`: Custom prompt to use for the LLM.
 *   `--api-key`: API key for the LLM provider. Overrides API keys from the config file or environment variables.
-*   `--rotate`: Manually rotate image by specified degrees (0, 90, 180, or 270).
 *   `--debug`: Save intermediate processing steps for debugging.
 *   `--log-level`: Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
 *   `--help`: Show the help message and exit.
@@ -70,10 +69,6 @@ vllmocr my_image.jpg -m haiku
 
 ```bash
 vllmocr document.pdf -p ollama -m llama3.2-vision
-```
-
-```bash
-vllmocr scan.jpg -p openai -m gpt-4o --rotate 90
 ```
 
 Running `vllmocr` without arguments will display a help message with usage examples.
@@ -102,8 +97,7 @@ A more substantial challenge arises when processing pages with more than a few h
 provider = "anthropic"  # Default provider
 model = "claude-3-5-haiku-latest"  # Default model for the provider
 
-[image_processing]
-rotation = 0           # Image rotation in degrees (optional)
+# Image processing settings (e.g., resizing parameters) could be added here if needed in the future.
 
 [api_keys]
 openai = "YOUR_OPENAI_API_KEY"
