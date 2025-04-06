@@ -147,7 +147,9 @@ from concurrent.futures import ThreadPoolExecutor
 DEFAULT_PDF_DPI = 300 # Changed default DPI from 600 to 300
 
 def process_page(page, i, output_dir, dpi=DEFAULT_PDF_DPI):
-    """Process a single PDF page to extract or render images with higher DPI."""
+    """Process a single PDF page to extract or render images, capping DPI."""
+    # Ensure rendering DPI doesn't exceed the default/maximum
+    effective_dpi = min(dpi, DEFAULT_PDF_DPI)
     try:
         img_list = page.get_images(full=True)
         temp_image_path = Path(output_dir) / f"page_{i + 1}.png"
@@ -163,14 +165,14 @@ def process_page(page, i, output_dir, dpi=DEFAULT_PDF_DPI):
 
             logging.info(f"Extracted original image from page {i + 1} in {img_ext} format.")
 
-        else:  # Render the page as an image at high DPI
-            zoom = dpi / 72  # Scale factor (default is 72 DPI)
+        else:  # Render the page as an image, capped at effective_dpi
+            zoom = effective_dpi / 72  # Scale factor based on capped DPI
             mat = fitz.Matrix(zoom, zoom)  # Create a transformation matrix
             pixmap = page.get_pixmap(matrix=mat, alpha=False)  # Render with the matrix
 
             pixmap.save(str(temp_image_path))  # Save rendered image (ensure path is string)
 
-            logging.info(f"Rendered page {i + 1} at {dpi} DPI to {temp_image_path.name}.")
+            logging.info(f"Rendered page {i + 1} at {effective_dpi} DPI to {temp_image_path.name}.")
 
         return str(temp_image_path)
 
@@ -179,7 +181,9 @@ def process_page(page, i, output_dir, dpi=DEFAULT_PDF_DPI):
         return None
 
 def pdf_to_images(pdf_path: str, output_dir: str, dpi=DEFAULT_PDF_DPI) -> list:
-    """Converts a PDF file into a series of high-resolution images."""
+    """Converts a PDF file into a series of images, capping rendering DPI."""
+    # Ensure rendering DPI doesn't exceed the default/maximum
+    effective_dpi = min(dpi, DEFAULT_PDF_DPI)
     try:
         doc = fitz.open(pdf_path)
     except Exception as e:
@@ -193,12 +197,13 @@ def pdf_to_images(pdf_path: str, output_dir: str, dpi=DEFAULT_PDF_DPI) -> list:
     output_dir.mkdir(exist_ok=True, parents=True)
 
     with ThreadPoolExecutor() as executor:
-        image_paths = list(filter(None, executor.map(lambda p: process_page(p[1], p[0], output_dir, dpi), enumerate(doc))))
+        # Pass the capped effective_dpi to process_page
+        image_paths = list(filter(None, executor.map(lambda p: process_page(p[1], p[0], output_dir, effective_dpi), enumerate(doc))))
 
     if not image_paths:
         raise ValueError("No images were generated from the PDF.")
     # Removed print(image_paths) - too verbose for normal operation
-    logging.info(f"Processed {len(image_paths)} pages from PDF. Pages requiring rendering were processed at {dpi} DPI.")
+    logging.info(f"Processed {len(image_paths)} pages from PDF. Pages requiring rendering were processed at up to {effective_dpi} DPI.")
     return image_paths
 
 
