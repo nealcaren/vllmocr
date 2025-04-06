@@ -1,8 +1,10 @@
 import logging
+import logging
 import os
 import re
 from typing import List
 from pathlib import Path
+import math # Added for resizing calculation
 
 import cv2
 import pymupdf as fitz  # PyMuPDF
@@ -83,8 +85,53 @@ def preprocess_image(
                 denoised,
             )
         os.path.join("/Users/nealcaren/Dropbox/", f"{os.path.basename(image_path)}_denoised.png"), # TODO: This looks like a leftover debug path, should it be removed?
-        # Always save the denoised grayscale image as PNG with maximum compression
+
+        # --- Add file size check and resizing ---
+        MAX_FILE_SIZE_BYTES = 3 * 1024 * 1024  # 3 MB limit
+        MIN_DIMENSION = 100 # Minimum width/height after resizing
+
+        # Initial save attempt
         cv2.imwrite(output_path, denoised, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+        current_size = os.path.getsize(output_path)
+        resized = False
+        image_to_resize = denoised # Keep the image in memory for potential resizing
+
+        while current_size > MAX_FILE_SIZE_BYTES:
+            resized = True
+            logging.warning(
+                f"Image {output_path} ({current_size / (1024*1024):.2f} MB) "
+                f"exceeds limit ({MAX_FILE_SIZE_BYTES / (1024*1024):.2f} MB). Resizing."
+            )
+
+            # Calculate new dimensions (reduce by ~10% linearly, sqrt(0.9) factor)
+            scale_factor = math.sqrt(MAX_FILE_SIZE_BYTES / current_size) # Estimate needed reduction
+            scale_factor = min(scale_factor, 0.95) # Ensure at least 5% reduction to avoid stalling
+
+            height, width = image_to_resize.shape[:2]
+            new_width = max(MIN_DIMENSION, int(width * scale_factor))
+            new_height = max(MIN_DIMENSION, int(height * scale_factor))
+
+            if new_width == width and new_height == height:
+                 logging.warning(f"Cannot resize {output_path} further to meet size limit. Stopping resize attempt.")
+                 break # Avoid infinite loop if dimensions are already minimal or scale factor is ~1
+
+            if new_width < MIN_DIMENSION or new_height < MIN_DIMENSION:
+                logging.warning(f"Resizing {output_path} stopped: reached minimum dimension {MIN_DIMENSION}px.")
+                break
+
+            image_to_resize = cv2.resize(image_to_resize, (new_width, new_height), interpolation=cv2.INTER_AREA)
+
+            # Save resized image, overwriting the previous one
+            cv2.imwrite(output_path, image_to_resize, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+            current_size = os.path.getsize(output_path)
+
+            logging.info(f"Resized {output_path} to {new_width}x{new_height}, new size: {current_size / (1024*1024):.2f} MB")
+
+
+        if resized:
+             logging.info(f"Final size for {output_path}: {current_size / (1024*1024):.2f} MB")
+        # --- End file size check ---
+
         return output_path
     except Exception as e:
         if debug:
