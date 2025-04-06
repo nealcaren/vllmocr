@@ -6,11 +6,11 @@ from typing import List, Optional
 import logging
 
 
+import re # Import re for filename sanitization
 from .image_processing import (
-    preprocess_image,
+    resize_image_for_claude, # Changed import
     pdf_to_images,
-    sanitize_filename,
-    determine_output_format,
+    # Removed sanitize_filename, determine_output_format
 )
 from .llm_interface import transcribe_image
 from .config import load_config, AppConfig, MODEL_MAPPING
@@ -27,26 +27,39 @@ def process_single_image(
 ) -> str:
     """Processes a single image and returns the transcribed text."""
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        try:
-            output_format = determine_output_format(image_path, provider)
-            output_path = os.path.join(temp_dir, f"preprocessed.{output_format}")
-            preprocessed_path = preprocess_image(
-                image_path,
-                output_path,
-                provider,
-                config.image_processing_settings["rotation"],
-                config.debug,
-            )
-            logging.info(
-                f"Transcribing image from {image_path} using the {model} model from {provider}."
-            )
-            result = transcribe_image(
-                preprocessed_path, provider, config, model, custom_prompt, api_key
-            )
-            return result
-        except Exception as e:
-            if config.debug:
+    # Use the temporary directory provided by the caller (process_pdf) or create one if called directly
+    # For simplicity, let's assume it's always called within a temp dir context for now.
+    # If called standalone, a temp dir would need creation here.
+    temp_dir = os.path.dirname(image_path) # Assuming image_path is already in a temp dir from pdf_to_images
+
+    try:
+        # Call the new resizing function
+        # Using default values for max_size_mb, max_dimension, convert_to_grayscale
+        # These could be made configurable via AppConfig if needed later.
+        processed_image_path = resize_image_for_claude(
+            image_path=image_path,
+            output_dir=temp_dir,
+            # max_size_mb=4.5, # Default in function
+            # max_dimension=1500, # Default in function
+            # convert_to_grayscale=True # Default in function
+        )
+
+        if processed_image_path is None:
+            # Handle case where image processing failed
+            logging.error(f"Image processing/resizing failed for {image_path}. Skipping transcription for this image.")
+            # Depending on desired behavior, could raise an exception or return an error string
+            return f"[ERROR: Image processing failed for {os.path.basename(image_path)}]"
+
+        logging.info(
+            f"Transcribing image from {processed_image_path} using the {model} model from {provider}."
+        )
+        result = transcribe_image(
+            processed_image_path, provider, config, model, custom_prompt, api_key
+        )
+        return result
+    except Exception as e:
+        # Keep existing debug logging for transcription errors
+        if config.debug:
                 logging.error(f"TRACE: Error in process_single_image: {str(e)}")
                 import traceback
 
@@ -109,13 +122,7 @@ def main():
         "-c", "--custom-prompt", type=str, help="Custom prompt to use for the LLM."
     )
     parser.add_argument("--api-key", type=str, help="API key for the LLM provider.")
-    parser.add_argument(
-        "--rotate",
-        type=int,
-        choices=[0, 90, 180, 270],
-        default=0,
-        help="Manually rotate image by specified degrees (0, 90, 180, or 270)",
-    )
+    # Removed --rotate argument
     parser.add_argument(
         "--debug",
         action="store_true",
@@ -141,7 +148,7 @@ def main():
         print(" -m, --model         Model to use (e.g., 'haiku', 'gpt-4o', 'llama3.2-vision', 'google/gemma-3-27b-it').")
         print(" -c, --custom-prompt Custom prompt to use for the LLM.")
         print(" --api-key           API key for the LLM provider.")
-        print(" --rotate            Manually rotate image by specified degrees (0, 90, 180, or 270).")
+        # Removed --rotate help line
         print(" --debug             Save intermediate processing steps for debugging.")
         print(" --log-level         Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).")
         print("\nExample commands:")
@@ -156,7 +163,7 @@ def main():
     setup_logging(log_level)
 
     config = load_config()
-    config.image_processing_settings["rotation"] = args.rotate
+    # Removed rotation setting from config
     config.debug = args.debug
     input_file = args.input
     api_key = args.api_key
@@ -208,8 +215,10 @@ def main():
     output_filename = args.output
     if not output_filename:
         model_str = args.model if args.model else provider
+        # Simple sanitization: replace non-alphanumeric with underscore
+        sanitized_model_str = re.sub(r'[^\w\-.]+', '_', model_str)
         output_filename = (
-            f"{os.path.splitext(input_file)[0]}_{sanitize_filename(model_str)}.md"
+            f"{os.path.splitext(input_file)[0]}_{sanitized_model_str}.md"
         )
 
     with open(output_filename, "w") as f:
