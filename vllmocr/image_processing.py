@@ -200,3 +200,42 @@ def pdf_to_images(pdf_path: str, output_dir: str, dpi=DEFAULT_PDF_DPI) -> list:
     print(image_paths)
     print(f"Extracted {len(image_paths)} pages at {dpi} DPI.")
     return image_paths
+
+
+if __name__ == "__main__":
+    # --- Local Testing Block ---
+    # Configure basic logging to see function output
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+
+    # --- !!! IMPORTANT: Set these paths correctly for your test !!! ---
+    test_input_image = "path/to/your/test_image.jpg"  # <--- CHANGE THIS
+    test_output_image = "test_output_preprocessed.png"
+    # ---
+
+    # Check if the input file exists
+    if not os.path.exists(test_input_image):
+        logging.error(f"Input test image not found: {test_input_image}")
+        logging.error("Please update the 'test_input_image' variable in the script.")
+    else:
+        logging.info(f"Testing preprocess_image on: {test_input_image}")
+        try:
+            # Call the function with desired parameters for testing
+            processed_path = preprocess_image(
+                image_path=test_input_image,
+                output_path=test_output_image,
+                provider="openai",  # Provider might influence output format (though currently always PNG)
+                rotation=0,       # Test with rotation if needed
+                debug=True        # Enable debug outputs
+            )
+
+            if processed_path:
+                logging.info(f"Preprocessing successful. Output saved to: {processed_path}")
+                # You might want to add code here to open the image automatically
+                # import subprocess
+                # subprocess.run(["open", processed_path]) # macOS example
+            else:
+                logging.error("Preprocessing failed.")
+
+        except Exception as e:
+            logging.error(f"An error occurred during testing: {e}", exc_info=True)
+    # --- End Local Testing Block ---
