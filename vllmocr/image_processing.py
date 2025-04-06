@@ -45,11 +45,9 @@ def preprocess_image(
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(16, 16))
         contrast_enhanced = clahe.apply(gray)
 
-        # Apply a lighter blur to preserve details
-        blurred = cv2.GaussianBlur(contrast_enhanced, (1, 1), 0)
-
         # Denoise with lower strength to preserve character details
-        denoised = cv2.fastNlMeansDenoising(blurred, h=5, templateWindowSize=7, searchWindowSize=21)
+        # Note: Removed GaussianBlur step as it was minimal (1,1) and might slightly soften
+        denoised = cv2.fastNlMeansDenoising(contrast_enhanced, h=5, templateWindowSize=7, searchWindowSize=21)
 
         # Apply manual rotation if specified
         if rotation in {90, 180, 270}:
@@ -78,10 +76,7 @@ def preprocess_image(
                 os.path.join(debug_dir, f"{os.path.basename(image_path)}_enhanced.png"),
                 contrast_enhanced,
             )
-            cv2.imwrite(
-                os.path.join(debug_dir, f"{os.path.basename(image_path)}_blurred.png"),
-                blurred,
-            )
+            # Removed blurred.png debug output as blur step was removed
             cv2.imwrite(
                 os.path.join(debug_dir, f"{os.path.basename(image_path)}_denoised.png"),
                 denoised,
@@ -101,7 +96,9 @@ def preprocess_image(
 
 from concurrent.futures import ThreadPoolExecutor
 
-def process_page(page, i, output_dir, dpi=300):
+DEFAULT_PDF_DPI = 600
+
+def process_page(page, i, output_dir, dpi=DEFAULT_PDF_DPI):
     """Process a single PDF page to extract or render images with higher DPI."""
     try:
         img_list = page.get_images(full=True)
@@ -133,7 +130,7 @@ def process_page(page, i, output_dir, dpi=300):
         logging.error(f"Error processing page {i + 1}: {e}")
         return None
 
-def pdf_to_images(pdf_path: str, output_dir: str, dpi=300) -> list:
+def pdf_to_images(pdf_path: str, output_dir: str, dpi=DEFAULT_PDF_DPI) -> list:
     """Converts a PDF file into a series of high-resolution images."""
     try:
         doc = fitz.open(pdf_path)
