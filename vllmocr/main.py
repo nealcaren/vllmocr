@@ -8,9 +8,8 @@ import logging
 
 import re # Import re for filename sanitization
 from .image_processing import (
-    resize_image_for_claude, # Changed import
+    preprocess_image, # Use preprocess_image instead
     pdf_to_images,
-    # Removed sanitize_filename, determine_output_format
 )
 from .llm_interface import transcribe_image
 from .config import load_config, AppConfig, MODEL_MAPPING
@@ -31,27 +30,30 @@ def process_single_image(
     # For simplicity, let's assume it's always called within a temp dir context for now.
     # If called standalone, a temp dir would need creation here.
     temp_dir = os.path.dirname(image_path) # Assuming image_path is already in a temp dir from pdf_to_images
+    # Define an output path for the preprocessed image within the temp directory
+    base_name = os.path.basename(image_path)
+    preprocessed_output_path = os.path.join(temp_dir, f"preprocessed_{os.path.splitext(base_name)[0]}.png")
+
 
     try:
-        # Call the new resizing function
-        # Using default values for max_size_mb, max_dimension, convert_to_grayscale
-        # These could be made configurable via AppConfig if needed later.
-        processed_image_path = resize_image_for_claude(
+        # Call preprocess_image which handles grayscale, contrast, denoising, rotation (if needed), and resizing.
+        # Rotation is currently hardcoded to 0 as the --rotate argument was removed.
+        processed_image_path = preprocess_image(
             image_path=image_path,
-            output_dir=temp_dir,
-            # max_size_mb=4.5, # Default in function
-            # max_dimension=1500, # Default in function
-            # convert_to_grayscale=True # Default in function
+            output_path=preprocessed_output_path,
+            provider=provider, # Pass provider for potential format decisions (currently always PNG)
+            rotation=0, # Rotation argument removed, default to 0
+            debug=config.debug
         )
 
         if processed_image_path is None:
             # Handle case where image processing failed
-            logging.error(f"Image processing/resizing failed for {image_path}. Skipping transcription for this image.")
+            logging.error(f"Image preprocessing failed for {image_path}. Skipping transcription for this image.")
             # Depending on desired behavior, could raise an exception or return an error string
-            return f"[ERROR: Image processing failed for {os.path.basename(image_path)}]"
+            return f"[ERROR: Image preprocessing failed for {os.path.basename(image_path)}]"
 
         logging.info(
-            f"Transcribing image from {processed_image_path} using the {model} model from {provider}."
+            f"Transcribing preprocessed image from {processed_image_path} using the {model} model from {provider}."
         )
         result = transcribe_image(
             processed_image_path, provider, config, model, custom_prompt, api_key
@@ -64,7 +66,8 @@ def process_single_image(
             import traceback
 
             logging.error(f"TRACE: Traceback: {traceback.format_exc()}")
-        raise # This should be aligned with the 'if' statement, inside the 'except' block
+        # Re-raise the exception after logging
+        raise
 
 
 def process_pdf(
