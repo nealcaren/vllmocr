@@ -104,6 +104,23 @@ Most models demonstrate reasonable accuracy, though hallucinations occur most fr
 
 A more substantial challenge arises when processing pages with more than a few hundred words, such as full newspaper or magazine pages. The bigger the model the more words they are able to output, and this doesn't seem to have anything to do with context window size or output restrictions, just parameters. When overwhelmed, models frequently omit significant sections, especially with column-formatted content. To achieve best results, I usually crop the image into smaller, manageable sections and performing OCR on each section individually. This approach dramatically improves accuracy and ensures comprehensive text capture across the entire document.
 
+## Model Recommendations
+
+Based on benchmarking with the [Inkbench OCR dataset](https://github.com/nealcaren/Inkbench), here are the recommended models:
+
+| Model | Provider | Accuracy | Cost | Images/$ | Best For |
+|-------|----------|----------|------|----------|----------|
+| gpt-4.1-mini | OpenAI | 88% | ~$0.11/1K tokens | ~9,000 | **Best value** - fast, cheap, accurate |
+| qwen/qwen3-vl-235b-a22b-instruct | OpenRouter | 89% | ~$0.22/1K tokens | ~4,500 | **Best open model** - highest accuracy |
+| gemini-2.5-flash | Google | 87% | ~$0.15/1K tokens | ~6,500 | Good balance of speed and accuracy |
+| claude-3-5-haiku | Anthropic | 85% | ~$0.25/1K tokens | ~4,000 | Fast, good for straightforward documents |
+
+**Quick recommendations:**
+- **Budget-conscious**: Use `gpt-4.1-mini` - best accuracy per dollar
+- **Maximum accuracy**: Use `qwen/qwen3-vl-235b-a22b-instruct` via OpenRouter
+- **Difficult documents**: Add `--thinking-budget 2048` with Anthropic or Google models
+
+*Cost estimates assume ~1K tokens per image (input + output). Actual costs vary by document complexity.*
 
 ## Configuration
 
