@@ -4,32 +4,29 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vllmocr"
-version = "0.7.0"
+version = "0.8.0"
 description = "OCR using LLMs"
 readme = "README.md"
 keywords = ["ocr", "llm", "image processing", "vllm"]
 classifiers = [
  "Development Status :: 3 - Alpha",
  "Intended Audience :: Developers",
- "License :: OSI Approved :: MIT License", # Assuming MIT License
+ "License :: OSI Approved :: MIT License",
  "Programming Language :: Python :: 3.10",
  "Programming Language :: Python :: 3.11",
  "Programming Language :: Python :: 3.12",
 ]
 requires-python = ">=3.10"
 dependencies = [
- "opencv-python",
- "anthropic",
- "pytest",
- "pytest-mock",
- "openai",
- "google-genai",
- "ollama",
- "requests",
- "PyMuPDF",
- "opencv-python-headless",
- "python-dotenv",
- "typing-extensions",
+ "anthropic>=0.39.0",
+ "openai>=1.50.0",
+ "google-genai>=0.5.0",
+ "ollama>=0.3.0",
+ "requests>=2.31.0",
+ "PyMuPDF>=1.24.0",
+ "opencv-python-headless>=4.9.0",
+ "python-dotenv>=1.0.0",
+ "typing-extensions>=4.9.0",
 ]
 
 [project.scripts]
@@ -38,4 +35,6 @@ vllmocr = "vllmocr.main:main"
 [project.optional-dependencies]
 dev = [
  "pytest>=8.3.5",
+ "pytest-mock>=3.14.0",
+ "datasets>=2.18.0",
 ]

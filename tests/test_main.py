@@ -1,118 +1,120 @@
-import os
-import pytest
-from ocrv.main import process_single_image, process_pdf
-from ocrv.config import AppConfig, load_config, MODEL_MAPPING
-from unittest.mock import patch, ANY
+"""Unit tests for vllmocr main module."""
 
-# Get the absolute path to the project root directory
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+import pytest
+from unittest.mock import patch, MagicMock
+
+from vllmocr.main import process_single_image, process_pdf
+from vllmocr.config import load_config
 
 
 @pytest.fixture
 def config():
-    # Load the configuration.  This will *now* pick up API keys from the environment.
-    config = load_config()
-    return config
-
-
-@pytest.fixture
-def test_data_dir():
-    return os.path.join(PROJECT_ROOT, "tests", "data")
+    return load_config()
 
 
 @pytest.mark.parametrize(
-    "provider, model_alias",
+    "provider, model_name",
+    [
+        ("openai", "gpt-4o"),
+        ("openai", "gpt-5-mini"),
+        ("anthropic", "haiku"),
+        ("anthropic", "sonnet"),
+        ("google", "gemini-2.5-flash"),
+        ("ollama", "llama3"),
+        ("ollama", "minicpm"),
+        ("openrouter", "meta-llama/llama-3.2-90b-vision-instruct"),
+    ],
+)
+def test_process_single_image_makes_provider_call(config, provider, model_name):
+    """Test that process_single_image calls the correct provider."""
+    # Mock at the usage location (vllmocr.main) not the definition location
+    with patch("vllmocr.main.preprocess_image", return_value="/tmp/x.png"):
+        # Mock the provider's transcribe method via the registry
+        mock_provider = MagicMock()
+        mock_provider.transcribe.return_value = f"Mocked {provider} transcription"
+        mock_provider.post_process.return_value = f"Mocked {provider} transcription"
+        mock_provider.requires_api_key = provider != "ollama"
+        mock_provider.default_model = model_name
+
+        with patch("vllmocr.llm_interface.get_provider", return_value=mock_provider):
+            if provider == "ollama":
+                out = process_single_image("/tmp/in.png", provider, config, model=model_name)
+            else:
+                out = process_single_image("/tmp/in.png", provider, config, model=model_name, api_key="XYZ")
+
+            assert out == f"Mocked {provider} transcription"
+            mock_provider.transcribe.assert_called_once()
+
+            # Verify model was passed correctly
+            _, kwargs = mock_provider.transcribe.call_args
+            assert kwargs.get("model") == model_name
+
+
+@pytest.mark.parametrize(
+    "provider, model_name",
     [
         ("openai", "gpt-4o"),
         ("anthropic", "haiku"),
-        ("anthropic", "sonnet"),
-        ("google", "gemini-1.5-pro-002"),  # Assuming you want a default for Google
+        ("google", "gemini-2.5-flash"),
         ("ollama", "llama3"),
-        ("ollama", "minicpm"),
+        ("openrouter", "meta-llama/llama-3.2-90b-vision-instruct"),
     ],
 )
-def test_process_single_image(config, test_data_dir, provider, model_alias):
-    image_path = os.path.join(test_data_dir, "sample.png")
+def test_process_pdf_single_page(config, provider, model_name):
+    """Test that process_pdf processes a single page PDF correctly."""
+    with patch("vllmocr.main.pdf_to_images", return_value=["/tmp/page1.png"]), \
+         patch("vllmocr.main.preprocess_image", return_value="/tmp/p1.png"):
 
-    if provider == "ollama":
-        result = process_single_image(image_path, provider, config, model=model_alias)
-        assert isinstance(result, str)
-        assert len(result) > 0
-    else:
-        with patch(
-            f"ocrv.llm_interface._transcribe_with_{provider}"
-        ) as mock_transcribe:
-            mock_transcribe.return_value = f"Mocked {provider} transcription"
-            result = process_single_image(
-                image_path, provider, config, model=model_alias
+        mock_provider = MagicMock()
+        mock_provider.transcribe.return_value = f"Mocked {provider} transcription"
+        mock_provider.post_process.return_value = f"Mocked {provider} transcription"
+        mock_provider.requires_api_key = provider != "ollama"
+        mock_provider.default_model = model_name
+
+        with patch("vllmocr.llm_interface.get_provider", return_value=mock_provider):
+            out = process_pdf("/tmp/in.pdf", provider, config, model=model_name)
+            assert out == f"Mocked {provider} transcription"
+            mock_provider.transcribe.assert_called_once()
+
+
+def test_api_key_precedence_for_openai(config):
+    """Test that CLI-provided API key takes precedence over config."""
+    with patch("vllmocr.main.preprocess_image", return_value="/tmp/x.png"):
+        mock_provider = MagicMock()
+        mock_provider.transcribe.return_value = "OK"
+        mock_provider.post_process.return_value = "OK"
+        mock_provider.requires_api_key = True
+        mock_provider.default_model = "gpt-5-mini"
+
+        with patch("vllmocr.llm_interface.get_provider", return_value=mock_provider):
+            out = process_single_image("/tmp/in.png", "openai", config, model="gpt-5-mini", api_key="CLI_KEY")
+            assert out == "OK"
+
+            # Verify CLI key was used
+            _, kwargs = mock_provider.transcribe.call_args
+            assert kwargs.get("api_key") == "CLI_KEY"
+
+
+def test_thinking_budget_passed_to_provider(config):
+    """Test that thinking_budget is passed to the provider."""
+    with patch("vllmocr.main.preprocess_image", return_value="/tmp/x.png"):
+        mock_provider = MagicMock()
+        mock_provider.transcribe.return_value = "OK"
+        mock_provider.post_process.return_value = "OK"
+        mock_provider.requires_api_key = True
+        mock_provider.default_model = "claude-sonnet-4-20250514"
+
+        with patch("vllmocr.llm_interface.get_provider", return_value=mock_provider):
+            out = process_single_image(
+                "/tmp/in.png",
+                "anthropic",
+                config,
+                model="claude-sonnet-4-20250514",
+                api_key="KEY",
+                thinking_budget=2048,
             )
-            assert result == f"Mocked {provider} transcription"
-            #  get the expected full model name
-            expected_provider, expected_model = MODEL_MAPPING[model_alias]
-            assert expected_provider == provider
+            assert out == "OK"
 
-            if provider == "openai":
-                mock_transcribe.assert_called_once_with(ANY, ANY, model=expected_model)
-            elif provider == "anthropic":
-                mock_transcribe.assert_called_once_with(ANY, ANY, model=expected_model)
-            elif provider == "google":
-                mock_transcribe.assert_called_once_with(ANY, ANY, model=expected_model)
-            elif provider == "ollama":
-                mock_transcribe.assert_called_once_with(ANY, model=expected_model)
-
-
-@pytest.mark.parametrize(
-    "provider, model_alias",
-    [
-        ("openai", "gpt-4o"),
-        ("anthropic", "haiku"),
-        ("anthropic", "sonnet"),
-        ("google", "gemini-1.5-pro-002"),  # Assuming you want a default for Google
-        ("ollama", "llama3"),
-        ("ollama", "minicpm"),
-    ],
-)
-def test_process_pdf(config, test_data_dir, provider, model_alias):
-    pdf_path = os.path.join(test_data_dir, "sample.pdf")
-
-    if provider == "ollama":
-        result = process_pdf(pdf_path, provider, config, model=model_alias)
-        assert isinstance(result, str)
-        assert len(result) > 0
-    else:
-        with patch(
-            f"ocrv.llm_interface._transcribe_with_{provider}"
-        ) as mock_transcribe:
-            mock_transcribe.return_value = f"Mocked {provider} transcription"
-            result = process_pdf(pdf_path, provider, config, model=model_alias)
-            assert result == f"Mocked {provider} transcription"
-
-            #  get the expected full model name
-            expected_provider, expected_model = MODEL_MAPPING[model_alias]
-            assert expected_provider == provider
-
-            if provider == "openai":
-                mock_transcribe.assert_called_once_with(ANY, ANY, model=expected_model)
-            elif provider == "anthropic":
-                mock_transcribe.assert_called_once_with(ANY, ANY, model=expected_model)
-            elif provider == "google":
-                mock_transcribe.assert_called_once_with(ANY, ANY, model=expected_model)
-            elif provider == "ollama":
-                mock_transcribe.assert_called_once_with(ANY, model=expected_model)
-
-            assert mock_transcribe.call_count == 1
-
-
-def test_process_single_image_invalid_file(config, test_data_dir):
-    image_path = os.path.join(test_data_dir, "nonexistent.png")
-    with pytest.raises(SystemExit):
-        process_single_image(image_path, "openai", config)
-
-
-def test_process_single_image_rotation(config, test_data_dir):
-    image_path = os.path.join(test_data_dir, "sample.png")
-    with patch("ocrv.llm_interface._transcribe_with_openai") as mock_transcribe:
-        mock_transcribe.return_value = "Mocked OpenAI transcription"
-        config.image_processing_settings["rotation"] = 90
-        result = process_single_image(image_path, "openai", config)
-        assert result == "Mocked OpenAI transcription"
+            # Verify thinking_budget was passed
+            _, kwargs = mock_provider.transcribe.call_args
+            assert kwargs.get("thinking_budget") == 2048

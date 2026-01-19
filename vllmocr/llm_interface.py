@@ -1,222 +1,15 @@
+"""LLM interface for OCR transcription.
+
+This module provides the main entry point for transcribing images
+using various LLM providers through a unified registry pattern.
+"""
+
 import logging
 from typing import Optional
-import logging
-import re
 
-
-from google import genai
-from google.genai import types
-import openai
-import ollama
-import os
-import requests
-
-from .config import AppConfig, get_api_key, get_default_model
-from .utils import handle_error, _encode_image
+from .config import AppConfig, get_api_key
 from .prompts import get_prompt
-from .providers.anthropic import _transcribe_with_anthropic, _post_process_anthropic
-from .providers.openrouter import _transcribe_with_openrouter, _post_process_openrouter
-
-
-def _transcribe_with_openai(
-    image_path: str,
-    api_key: str,
-    prompt: str,
-    model: str = "gpt-4o",
-    debug: bool = False,
-) -> str:
-    """Transcribes the text in the given image using OpenAI."""
-    if debug:
-        logging.info(f"Transcribing with OpenAI, model: {model}")
-    try:
-        client = openai.OpenAI(api_key=api_key)
-        base64_image = _encode_image(image_path)
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": prompt,
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                # Dynamically determine image type from file extension
-                                "url": f"data:image/{os.path.splitext(image_path)[1][1:].lower()};base64,{base64_image}"
-                            },
-                        },
-                    ],
-                }
-            ],
-            stream=False,
-        )
-        return response.choices[0].message.content.strip()
-
-    except openai.OpenAIError as e:
-        handle_error(f"OpenAI API error: {e}", e)
-    except Exception as e:
-        handle_error(f"Error during OpenAI transcription", e)
-
-
-def _transcribe_with_google(
-    image_path: str,
-    api_key: str,
-    prompt: str,
-    model: str = "gemini-2.0-flash-lite",
-    debug: bool = False,
-) -> str:
-    """Transcribes the text in the given image using Google Gemini.
-
-    NOTE: Update your config with the new model names.
-    """
-    if debug:
-        logging.info(f"Transcribing with Google, model: {model}")
-    try:
-        client = genai.Client(api_key=api_key)
-        # Explicitly handle PNG and convert jpg/jpeg to lowercase
-        image_type = os.path.splitext(image_path)[1][1:].lower()
-        if image_type == "jpg":
-            image_type = "jpeg"
-        elif image_type == "png":
-            image_type = "png"  # Explicitly mark PNG handling
-
-        response = client.models.generate_content(
-            model=model,
-            contents=[
-                prompt,
-                types.Part.from_bytes(
-                    data=open(image_path, "rb").read(), mime_type=f"image/{image_type}"
-                ),
-            ],
-        )
-        return response.text
-
-    except genai.GenerativeAIError as e:
-        handle_error(f"Google API error: {e}", e)
-
-    except Exception as e:
-        handle_error(f"Error during Google Gemini transcription", e)
-
-
-def _transcribe_with_ollama(
-    image_path: str, prompt: str, model: str, debug: bool = False
-) -> str:
-    """Transcribes the text in the given image using Ollama."""
-    if debug:
-        logging.info(f"Transcribing with Ollama, model: {model}")
-    try:
-        # Check if the model is available
-        ollama.show(model=model)
-    except ollama.ResponseError as e:
-        if "model" in str(e) and "not found" in str(e):
-            # Ask the user if they want to pull the model
-            response = input(
-                f"Model '{model}' not found. Do you want to pull it? (y/N): "
-            )
-            if response.lower() == "y":
-                try:
-                    if debug:
-                        logging.info(f"Pulling Ollama model: {model}")
-                    last_status = None
-                    for progress in ollama.pull(model=model, stream=True):
-                        status = progress.get("status")
-                        if status != last_status:
-                            if "progress" in progress:
-                                if debug:
-                                    print(f"  {status}: {progress['progress']}%")
-                            else:
-                                if debug:
-                                    print(f"  {status}")
-                            last_status = status
-
-                except Exception as pull_e:
-                    handle_error(f"Error pulling Ollama model: {pull_e}", pull_e)
-                    return ""  # Or raise, depending on desired behavior
-            else:
-                print(f"Skipping transcription due to missing model: {model}")
-                return ""  # Or raise, depending on desired behavior
-        else:
-            # Handle other Ollama errors
-            handle_error(f"Ollama API error: {e}", e)
-            return ""
-    except requests.exceptions.RequestException as e:
-        handle_error(f"Ollama API request error: {e}", e)
-        return ""
-    except Exception as e:
-        handle_error(f"Error during Ollama transcription", e)
-        return ""
-
-    try:
-        response = ollama.chat(
-            model=model,
-            messages=[
-                {
-                    "role": "user",
-                    "num_ctx": 4096,
-                    "content": prompt,
-                    "images": [image_path],
-                }
-            ],
-        )
-        return response["message"].get("content", "").strip()
-
-    except Exception as e:
-        handle_error(f"Error during Ollama transcription after model check/pull", e)
-        return ""
-
-
-def _post_process_openai(text: str) -> str:
-    """Applies post-processing to OpenAI output.
-        Extract the text between ```md and ``` delimiters.
-    If the delimiters aren't present, return the entire text.
-
-    Args:
-        text (str): The input text that may contain markdown text within delimiters
-
-    Returns:
-        str: The extracted markdown text or the original text if delimiters aren't found
-    """
-    # Look for text between ```md and ``` delimiters
-    markdown_pattern = re.compile(r"```md\s*(.*?)\s*```", re.DOTALL)
-    match = markdown_pattern.search(text)
-
-    if match:
-        # Return just the content within the delimiters
-        return match.group(1).strip()
-    else:
-        # If delimiters aren't found, return the original text
-        return text.strip()
-
-
-def _post_process_google(text: str) -> str:
-    """Applies post-processing to Google Gemini output.
-        Extract the text between ```md and ``` delimiters.
-    If the delimiters aren't present, return the entire text.
-
-    Args:
-        text (str): The input text that may contain markdown text within delimiters
-
-    Returns:
-        str: The extracted markdown text or the original text if delimiters aren't found
-    """
-    # Look for text between ```md and ``` delimiters
-    markdown_pattern = re.compile(r"```md\s*(.*?)\s*```", re.DOTALL)
-    match = markdown_pattern.search(text)
-
-    if match:
-        # Return just the content within the delimiters
-        return match.group(1).strip()
-    else:
-        # If delimiters aren't found, return the original text
-        return text.strip()
-
-
-def _post_process_ollama(text: str) -> str:
-    """Applies post-processing to Ollama output."""
-    return text.strip()
+from .providers import get_provider
 
 
 def transcribe_image(
@@ -227,6 +20,7 @@ def transcribe_image(
     custom_prompt: Optional[str] = None,
     api_key: Optional[str] = None,
     debug: bool = False,
+    thinking_budget: Optional[int] = None,
 ) -> str:
     """Transcribes text from an image using the specified LLM provider and model.
 
@@ -234,59 +28,127 @@ def transcribe_image(
         image_path: Path to the image.
         provider: The LLM provider ('openai', 'anthropic', 'google', 'ollama', 'openrouter').
         config: The application configuration.
-        model: The specific model to use (optional).
+        model: The specific model to use (optional, uses provider default if not specified).
         custom_prompt: Optional custom prompt to use.
+        api_key: Optional API key override.
         debug: Enables debug logging.
+        thinking_budget: Optional token budget for thinking/reasoning mode
+            (supported by Anthropic and Google providers).
 
     Returns:
         The transcribed text.
 
     Raises:
-        ValueError: If the provider is not supported or if the model is required but not provided.
+        ValueError: If the provider is not supported or if API key is required but not provided.
     """
+    # Get provider instance from registry
+    provider_instance = get_provider(provider)
 
-    # Use the provided model directly, only getting default if model is None
-    full_model_name = model
-    if full_model_name is None:
-        try:
-            full_model_name = config.get_default_model(provider)
-        except Exception as e:
-            logging.error(f"TRACE: Error getting default model: {str(e)}")
-            raise ValueError(
-                f"No model specified and couldn't get default for provider {provider}"
-            )
+    # Resolve model - use provided model, or fall back to provider default, or config default
+    if model is None:
+        model = provider_instance.default_model
+        if not model:
+            try:
+                model = config.get_default_model(provider)
+            except Exception as e:
+                logging.error(f"Error getting default model: {str(e)}")
+                raise ValueError(
+                    f"No model specified and couldn't get default for provider {provider}"
+                )
 
+    # Resolve API key - use provided key, or fall back to config
+    if api_key is None:
+        api_key = get_api_key(config, provider)
 
-    api_key = get_api_key(config, provider)
-    if not api_key and provider != "ollama":
+    if provider_instance.requires_api_key and not api_key:
         raise ValueError(f"No API key found for provider {provider}")
 
-    prompt = get_prompt(provider, custom_prompt)
+    # Get prompt
+    prompt = get_prompt(custom_prompt)
 
-    if provider == "openai":
-        text = _transcribe_with_openai(
-            image_path, api_key, prompt, model=full_model_name, debug=debug
-        )
-        return _post_process_openai(text)
-    elif provider == "anthropic":
-        text = _transcribe_with_anthropic(
-            image_path, api_key, prompt, model=full_model_name, debug=debug
-        )
-        return _post_process_anthropic(text)
-    elif provider == "google":
-        text = _transcribe_with_google(
-            image_path, api_key, prompt, model=full_model_name, debug=debug
-        )
-        return _post_process_google(text)
-    elif provider == "ollama":
-        text = _transcribe_with_ollama(
-            image_path, prompt, model=full_model_name, debug=debug
-        )
-        return _post_process_ollama(text)
-    elif provider == "openrouter":
-        text = _transcribe_with_openrouter(
-            image_path, api_key, prompt, model=full_model_name, debug=debug
-        )
-        return _post_process_openrouter(text)
-    else:
-        handle_error(f"Unsupported LLM provider: {provider}")
+    if debug:
+        logging.info(f"Transcribing with {provider}, model: {model}")
+
+    # Build kwargs for provider-specific options
+    kwargs = {}
+    if thinking_budget is not None:
+        kwargs["thinking_budget"] = thinking_budget
+
+    # Transcribe and post-process
+    raw_text = provider_instance.transcribe(
+        image_path=image_path,
+        prompt=prompt,
+        model=model,
+        api_key=api_key,
+        debug=debug,
+        **kwargs,
+    )
+
+    return provider_instance.post_process(raw_text)
+
+
+# Backward compatibility exports - these are deprecated but kept for existing code
+# that imports directly from llm_interface
+def _transcribe_with_openai(*args, **kwargs):
+    """Deprecated: Use providers.openai.OpenAIProvider instead."""
+    from .providers.openai import OpenAIProvider
+    provider = OpenAIProvider()
+    return provider.transcribe(*args, **kwargs)
+
+
+def _transcribe_with_anthropic(*args, **kwargs):
+    """Deprecated: Use providers.anthropic.AnthropicProvider instead."""
+    from .providers.anthropic import AnthropicProvider
+    provider = AnthropicProvider()
+    return provider.transcribe(*args, **kwargs)
+
+
+def _transcribe_with_google(*args, **kwargs):
+    """Deprecated: Use providers.google.GoogleProvider instead."""
+    from .providers.google import GoogleProvider
+    provider = GoogleProvider()
+    return provider.transcribe(*args, **kwargs)
+
+
+def _transcribe_with_ollama(*args, **kwargs):
+    """Deprecated: Use providers.ollama.OllamaProvider instead."""
+    from .providers.ollama import OllamaProvider
+    provider = OllamaProvider()
+    return provider.transcribe(*args, **kwargs)
+
+
+def _transcribe_with_openrouter(*args, **kwargs):
+    """Deprecated: Use providers.openrouter.OpenRouterProvider instead."""
+    from .providers.openrouter import OpenRouterProvider
+    provider = OpenRouterProvider()
+    return provider.transcribe(*args, **kwargs)
+
+
+def _post_process_openai(text: str) -> str:
+    """Deprecated: Use providers.openai.OpenAIProvider.post_process instead."""
+    from .providers.openai import OpenAIProvider
+    return OpenAIProvider().post_process(text)
+
+
+def _post_process_anthropic(text: str) -> str:
+    """Deprecated: Use providers.anthropic.AnthropicProvider.post_process instead."""
+    from .providers.anthropic import AnthropicProvider
+    return AnthropicProvider().post_process(text)
+
+
+def _post_process_google(text: str) -> str:
+    """Deprecated: Use providers.google.GoogleProvider.post_process instead."""
+    from .providers.google import GoogleProvider
+    return GoogleProvider().post_process(text)
+
+
+def _post_process_ollama(text: str) -> str:
+    """Deprecated: Use providers.ollama.OllamaProvider.post_process instead."""
+    from .providers.ollama import OllamaProvider
+    return OllamaProvider().post_process(text)
+
+
+def _post_process_openrouter(text: str) -> str:
+    """Deprecated: Use providers.openrouter.OpenRouterProvider.post_process instead."""
+    from .providers.openrouter import OpenRouterProvider
+    return OpenRouterProvider().post_process(text)
