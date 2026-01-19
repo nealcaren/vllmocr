@@ -81,17 +81,17 @@ For convenience, you can use short aliases instead of full model names:
 **Examples:**
 
 ```bash
-# Use Anthropic Haiku (fast and cheap)
-vllmocr my_image.jpg -m haiku
+# Best value: OpenAI gpt-4.1-mini (88% accuracy, ~9,000 images/$)
+vllmocr my_image.jpg -p openai -m gpt-4.1-mini
 
-# Use a local model via Ollama
-vllmocr document.pdf -p ollama -m llama3.2-vision
+# Best accuracy: Qwen via OpenRouter (89% accuracy)
+vllmocr old_newspaper.jpg -p openrouter -m qwen/qwen3-vl-235b
 
 # Use extended thinking for difficult documents
 vllmocr scan.pdf -m sonnet --thinking-budget 2048
 
-# Use OpenRouter to access Qwen (top performer on benchmarks)
-vllmocr old_newspaper.jpg -p openrouter -m qwen/qwen2.5-vl-72b-instruct
+# Use a local model via Ollama (free, but lower accuracy)
+vllmocr document.pdf -p ollama -m llama3.2-vision
 ```
 
 Running `vllmocr` without arguments will display a help message with usage examples.
@@ -111,13 +111,13 @@ Based on benchmarking with the [Inkbench OCR dataset](https://github.com/nealcar
 | Model | Provider | Accuracy | Cost | Images/$ | Best For |
 |-------|----------|----------|------|----------|----------|
 | gpt-4.1-mini | OpenAI | 88% | ~$0.11/1K tokens | ~9,000 | **Best value** - fast, cheap, accurate |
-| qwen/qwen3-vl-235b-a22b-instruct | OpenRouter | 89% | ~$0.22/1K tokens | ~4,500 | **Best open model** - highest accuracy |
+| qwen/qwen3-vl-235b | OpenRouter | 89% | ~$0.22/1K tokens | ~4,500 | **Best open model** - highest accuracy |
 | gemini-2.5-flash | Google | 87% | ~$0.15/1K tokens | ~6,500 | Good balance of speed and accuracy |
 | claude-3-5-haiku | Anthropic | 85% | ~$0.25/1K tokens | ~4,000 | Fast, good for straightforward documents |
 
 **Quick recommendations:**
 - **Budget-conscious**: Use `gpt-4.1-mini` - best accuracy per dollar
-- **Maximum accuracy**: Use `qwen/qwen3-vl-235b-a22b-instruct` via OpenRouter
+- **Maximum accuracy**: Use `qwen/qwen3-vl-235b` via OpenRouter
 - **Difficult documents**: Add `--thinking-budget 2048` with Anthropic or Google models
 
 *Cost estimates assume ~1K tokens per image (input + output). Actual costs vary by document complexity.*
