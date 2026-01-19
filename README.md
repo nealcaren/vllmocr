@@ -15,7 +15,7 @@
     *   **OpenRouter:** Access to 100+ models including Qwen, Llama, Gemini
 *   **Thinking/Reasoning Models:** Extended thinking support for Anthropic and Google models via `--thinking-budget`.
 *   **Configurable:**  Settings can be adjusted via configuration file, environment variables, or CLI flags.
-*   **Image Preprocessing:** Automatic resizing and optimization to meet API requirements.
+*   **Minimal Image Preprocessing:** Light-touch processing to meet API size limits while preserving quality.
 
 ## Installation
 
@@ -121,6 +121,22 @@ Based on benchmarking with the [Inkbench OCR dataset](https://github.com/nealcar
 - **Difficult documents**: Add `--thinking-budget 2048` with Anthropic or Google models
 
 *Cost estimates assume ~1K tokens per image (input + output). Actual costs vary by document complexity.*
+
+## Image Preprocessing
+
+`vllmocr` applies minimal preprocessing to preserve image quality while meeting API requirements:
+
+**For images (PNG, JPG, JPEG):**
+- Converts to PNG format (lossless)
+- Resizes only if file exceeds size limit (default 1MB, adjustable via `--max-file-size-mb`)
+- No grayscale conversion, contrast enhancement, or sharpening
+
+**For PDFs:**
+- Extracts embedded images directly when possible (preserves original quality)
+- Renders pages at 300 DPI when extraction isn't possible
+- Caps maximum dimension at 6000 pixels to prevent memory issues
+
+The philosophy is to let the vision model see the image as close to the original as possible. Heavy preprocessing (binarization, deskewing, denoising) often removes information that modern vision models can use to interpret difficult text.
 
 ## Configuration
 
