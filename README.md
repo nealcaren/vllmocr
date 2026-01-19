@@ -8,13 +8,14 @@
 
 *   **Image and PDF OCR:** Extracts text from both images (PNG, JPG, JPEG) and PDF files.
 *   **Multiple LLM Providers:**  Supports a variety of LLMs:
-    *   **OpenAI:**  GPT-4o
-    *   **Anthropic:** Claude 3 Haiku, Claude 3.5 Haiku, Claude 3 Sonnet
-    *   **Google:** Gemini 1.5 Pro
-    *   **Ollama:**  (Local models) Llama3, Llama3.2-vision, MiniCPM, and other models supported by Ollama.
-    *   **OpenRouter:** Access to various models through the OpenRouter API
-*   **Configurable:**  Settings, including the LLM provider and model, can be adjusted via a configuration file or environment variables.
-*   **Image Preprocessing:** Includes image resizing and grayscale conversion to meet API requirements.
+    *   **OpenAI:** gpt-4.1-mini (default), gpt-4o, gpt-5-mini, o3, o4-mini
+    *   **Anthropic:** claude-sonnet-4, claude-3-5-haiku
+    *   **Google:** gemini-2.5-flash (default), gemini-2.5-pro
+    *   **Ollama:** llama3.2-vision, minicpm-v, and other vision models
+    *   **OpenRouter:** Access to 100+ models including Qwen, Llama, Gemini
+*   **Thinking/Reasoning Models:** Extended thinking support for Anthropic and Google models via `--thinking-budget`.
+*   **Configurable:**  Settings can be adjusted via configuration file, environment variables, or CLI flags.
+*   **Image Preprocessing:** Automatic resizing and optimization to meet API requirements.
 
 ## Installation
 
@@ -54,21 +55,43 @@ vllmocr <file_path> [options]
 
 *   `-o, --output`: Output file name (default: auto-generated based on input filename and model).
 *   `-p, --provider`: The LLM provider to use (openai, anthropic, google, ollama, openrouter). Defaults to `anthropic`.
-*   `-m, --model`: The specific model to use (e.g., `gpt-4o`, `haiku`, `llama3.2-vision`, `google/gemma-3-27b-it`). Defaults to `claude-3-5-haiku-latest`.
+*   `-m, --model`: The specific model to use. Supports aliases like `haiku`, `sonnet`, `4o`, `gemini`. Defaults to provider's recommended model.
 *   `-c, --custom-prompt`: Custom prompt to use for the LLM.
 *   `--api-key`: API key for the LLM provider. Overrides API keys from the config file or environment variables.
+*   `--thinking-budget`: Token budget for thinking/reasoning mode (Anthropic extended thinking, Google Gemini thinking). Minimum 1024 tokens.
+*   `--max-file-size-mb`: Maximum preprocessed image size in MB (default: 1). Images larger than this after preprocessing will be downscaled iteratively.
 *   `--debug`: Save intermediate processing steps for debugging.
 *   `--log-level`: Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
 *   `--help`: Show the help message and exit.
 
+**Model Aliases:**
+
+For convenience, you can use short aliases instead of full model names:
+
+| Alias | Provider | Model |
+|-------|----------|-------|
+| `haiku` | Anthropic | claude-3-5-haiku-latest |
+| `sonnet` | Anthropic | claude-sonnet-4-20250514 |
+| `4o` | OpenAI | gpt-4o |
+| `4o-mini` | OpenAI | gpt-4o-mini |
+| `4.1-mini` | OpenAI | gpt-4.1-mini |
+| `gemini` | Google | gemini-2.5-flash |
+| `qwen` | OpenRouter | qwen/qwen3-vl-235b |
+
 **Examples:**
 
 ```bash
+# Use Anthropic Haiku (fast and cheap)
 vllmocr my_image.jpg -m haiku
-```
 
-```bash
+# Use a local model via Ollama
 vllmocr document.pdf -p ollama -m llama3.2-vision
+
+# Use extended thinking for difficult documents
+vllmocr scan.pdf -m sonnet --thinking-budget 2048
+
+# Use OpenRouter to access Qwen (top performer on benchmarks)
+vllmocr old_newspaper.jpg -p openrouter -m qwen/qwen2.5-vl-72b-instruct
 ```
 
 Running `vllmocr` without arguments will display a help message with usage examples.
