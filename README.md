@@ -88,7 +88,7 @@ vllmocr my_image.jpg -p openai -m gpt-4.1-mini
 vllmocr old_newspaper.jpg -p openrouter -m qwen/qwen3-vl-235b
 
 # Use extended thinking for difficult documents
-vllmocr scan.pdf -m sonnet --thinking-budget 2048
+vllmocr scan.pdf -p google -m gemini-2.5-flash --thinking-budget 2048
 
 # Use a local model via Ollama (free, but lower accuracy)
 vllmocr document.pdf -p ollama -m llama3.2-vision
